@@ -21,17 +21,9 @@ public class Menu {
     }
 
     // ===== GETTER =====
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Long getParentId() {
-        return parentId;
-    }
+    public Long getId() { return id; }
+    public String getName() { return name; }
+    public Long getParentId() { return parentId; }
 
     // ===== BUSINESS LOGIC =====
     public void changeName(String newName) {
