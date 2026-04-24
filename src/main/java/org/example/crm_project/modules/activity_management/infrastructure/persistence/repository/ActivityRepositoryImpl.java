@@ -14,8 +14,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-
-
 import java.util.List;
 import java.util.Optional;
 
@@ -52,56 +50,70 @@ public class ActivityRepositoryImpl implements ActivityRepository {
 
     @Override
     public void deleteById(Long id) {
-        jpaRepository.deleteById(id);
+    jpaRepository.deleteById(id);
     }
 
     @Override
-public PagedResult<Activity> findAll(Pagination pagination) { // Đổi tham số thành Pagination
-    // 1. Chuyển từ Pagination (Domain) -> Pageable (Spring)
-    Pageable pageable = PageRequest.of(pagination.page(), pagination.size());
+    public PagedResult<Activity> findAll(Pagination pagination) { // Đổi tham số thành Pagination
+        // 1. Chuyển từ Pagination (Domain) -> Pageable (Spring)
+        Pageable pageable = PageRequest.of(pagination.page(), pagination.size());
 
-    // 2. Lấy Page từ Spring Data
-    Page<ActivityJpaEntity> springPage = jpaRepository.findAll(pageable);
+        // 2. Lấy Page từ Spring Data
+        Page<ActivityJpaEntity> springPage = jpaRepository.findAll(pageable);
 
-    // 3. Map sang Domain và đóng gói vào PagedResult của Duy
-    List<Activity> content = springPage.getContent().stream()
-            .map(ActivityJpaMapper::toDomain)
-            .toList();
+        // 3. Map sang Domain và đóng gói vào PagedResult của Duy
+        List<Activity> content = springPage.getContent().stream()
+                .map(ActivityJpaMapper::toDomain)
+                .toList();
 
-    return new PagedResult<>(content, springPage.getTotalElements(), springPage.getTotalPages());
-}
-
-@Override
-public PagedResult<Activity> findByCriteria(ActivitySearchCriteria criteria, Pagination pagination) { // Tham số phải là Pagination
-    // 1. Chuyển từ Pagination (Domain) -> Pageable (Spring)
-    Pageable pageable = PageRequest.of(pagination.page(), pagination.size());
-
-    // 2. Làm sạch chuỗi (Giữ nguyên logic của Duy)
-    String safeSearch = (criteria.search() != null && criteria.search().isBlank()) ? null : criteria.search();
-    String safeRelatedToType = (criteria.relatedToType() != null && criteria.relatedToType().isBlank()) ? null : criteria.relatedToType();
-    String safeActivityType = (criteria.activityType() != null && criteria.activityType().isBlank()) ? null : criteria.activityType();
-
-    Integer typeAsNumber = null;
-    if (safeActivityType != null) {
-        typeAsNumber = switch (safeActivityType.toUpperCase()) {
-            case "CALL" -> 1;
-            case "EMAIL" -> 2;
-            case "MEETING" -> 3;
-            default -> null;
-        };
+        return new PagedResult<>(content, springPage.getTotalElements(), springPage.getTotalPages());
     }
 
-    // 3. Gọi JpaRepository lấy Page của Spring
-    Page<ActivityJpaEntity> springPage = jpaRepository.searchActivities(
-            safeSearch, criteria.status(), typeAsNumber, criteria.performedBy(),
-            criteria.relatedToId(), safeRelatedToType, criteria.fromDate(), criteria.toDate(), 
-            pageable);
+    @Override
+    public PagedResult<Activity> findByCriteria(ActivitySearchCriteria criteria, Pagination pagination) { // Tham số
+                                                                                                          // phải là
+                                                                                                          // Pagination
+        // 1. Chuyển từ Pagination (Domain) -> Pageable (Spring)
+        Pageable pageable = PageRequest.of(pagination.page(), pagination.size());
 
-    // 4. "Đóng gói" lại thành PagedResult của Domain
-    List<Activity> content = springPage.getContent().stream()
-            .map(ActivityJpaMapper::toDomain)
-            .toList();
+        // 2. Làm sạch chuỗi (Giữ nguyên logic của Duy)
+        String safeSearch = (criteria.search() != null && criteria.search().isBlank()) ? null : criteria.search();
+        String safeRelatedToType = (criteria.relatedToType() != null && criteria.relatedToType().isBlank()) ? null
+                : criteria.relatedToType();
+        String safeActivityType = (criteria.activityType() != null && criteria.activityType().isBlank()) ? null
+                : criteria.activityType();
 
-    return new PagedResult<>(content, springPage.getTotalElements(), springPage.getTotalPages());
-}
+        Integer typeAsNumber = null;
+        if (safeActivityType != null) {
+            typeAsNumber = switch (safeActivityType.toUpperCase()) {
+                case "CALL" -> 1;
+                case "EMAIL" -> 2;
+                case "MEETING" -> 3;
+                default -> null;
+            };
+        }
+
+        // 3. Gọi JpaRepository lấy Page của Spring
+        Page<ActivityJpaEntity> springPage = jpaRepository.searchActivities(
+                safeSearch, criteria.status(), typeAsNumber, criteria.performedBy(),
+                criteria.relatedToId(), safeRelatedToType, criteria.fromDate(), criteria.toDate(),
+                pageable);
+
+        // 4. "Đóng gói" lại thành PagedResult của Domain
+        List<Activity> content = springPage.getContent().stream()
+                .map(ActivityJpaMapper::toDomain)
+                .toList();
+
+        return new PagedResult<>(content, springPage.getTotalElements(), springPage.getTotalPages());
+    }
+
+    @Override
+    public void deleteAllByIdInBatch(List<Long> ids) {
+        jpaRepository.deleteAllByIdInBatch(ids);
+    }
+
+    @Override
+    public void deleteBulk(List<Long> ids) {
+        jpaRepository.deleteAllByIdInBatch(ids);
+    }
 }

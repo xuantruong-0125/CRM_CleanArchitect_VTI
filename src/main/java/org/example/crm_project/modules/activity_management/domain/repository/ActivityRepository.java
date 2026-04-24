@@ -17,7 +17,8 @@ public interface ActivityRepository {
     List<Activity> findByRelatedObject(String type, Long id);
 
     void deleteById(Long id);
-
+    void deleteBulk(List<Long> ids);
+    void deleteAllByIdInBatch(List<Long> ids);
     PagedResult<Activity> findAll(Pagination pagination);
 
     Optional<Activity> findById(Long id);

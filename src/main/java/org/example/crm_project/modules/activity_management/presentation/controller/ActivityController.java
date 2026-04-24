@@ -4,14 +4,20 @@ import lombok.RequiredArgsConstructor;
 
 import org.example.crm_project.modules.activity_management.application.dto.request.ActivitySearchCriteria;
 import org.example.crm_project.modules.activity_management.application.dto.request.CreateActivityRequest;
+import org.example.crm_project.modules.activity_management.application.dto.request.UpdateActivityRequest;
 import org.example.crm_project.modules.activity_management.application.dto.response.ActivityResponse;
-import org.example.crm_project.modules.activity_management.application.service.ActivityService;
+import org.example.crm_project.modules.activity_management.application.service.contracts.ActivityService;
 import org.example.crm_project.modules.activity_management.domain.repository.PagedResult;
 import org.example.crm_project.modules.activity_management.domain.repository.Pagination;
 import org.hibernate.query.Page;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,7 +31,7 @@ public class ActivityController {
     private final ActivityService activityService;
 
     @GetMapping
-    public PagedResult<ActivityResponse> getAllActivities( // 1. Đổi Page -> PagedResult
+    public PagedResult<ActivityResponse> getAllActivities(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String search,
@@ -61,10 +67,44 @@ public class ActivityController {
         return activityService.getById(id);
     }
 
-    // @PostMapping
-    // public ActivityResponse createActivity(@RequestBody CreateActivityRequest
-    // request) {
+    // Thêm mới Activity
+    @PostMapping
+    public ResponseEntity<ActivityResponse> createActivity(@Valid @RequestBody CreateActivityRequest request) {
+        // Gọi Service xử lý logic lưu vào DB
+        ActivityResponse createdActivity = activityService.create(request);
 
-    // return service.create(request);
-    // }
+        // Trả về HTTP Status 201 (Created) kèm dữ liệu vừa tạo
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdActivity);
+    }
+
+    // KIỂU 1: Xóa đơn (Bấm vào chi tiết rồi xóa)
+    // URL: DELETE /api/v1/activities/{id}
+    @DeleteMapping("/{id}")
+    @CacheEvict(value = "activities", allEntries = true)
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        activityService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // KIỂU 2: Xóa hàng loạt (Trang danh sách, chọn nhiều rồi xóa)
+    // URL: DELETE /api/v1/activities
+    @DeleteMapping
+    @CacheEvict(value = "activities", allEntries = true)
+    public ResponseEntity<String> deleteBulk(@RequestBody List<Long> ids) {
+        activityService.deleteBulk(ids);
+        return ResponseEntity.ok("Đã xóa thành công " + ids.size() + " dòng");
+    }
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<ActivityResponse> update(
+            @PathVariable Long id, 
+            @Valid @RequestBody UpdateActivityRequest request) {
+        
+        // Gọi xuống Service để xử lý
+        ActivityResponse updated = activityService.update(id, request);
+        
+        return ResponseEntity.ok(updated);
+    }
+
+
 }

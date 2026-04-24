@@ -1,15 +1,33 @@
 package org.example.crm_project.modules.activity_management.infrastructure.adapter;
 
-import org.example.crm_project.modules.activity_management.domain.repository.ActivityUserProvider;
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
+import org.example.crm_project.modules.activity_management.domain.repository.ActivityUserProvider;
+
+import org.example.crm_project.modules.system_managerment.application.service.UserService; 
 
 @Component
+@RequiredArgsConstructor
 public class ActivityUserProviderImpl implements ActivityUserProvider {
+    
+    private final UserService userService; 
 
     @Override
-    public String getUserNameById(Long userId) {
-        // TẠM THỜI: Trả về tên giả hoặc gọi tạm database nếu Duy biết bảng User
-        // Sau này xong, chỉ cần sửa đúng 1 dòng ở đây thôi.
-        return "Nhân viên ID " + userId;
+    @Cacheable(value = "activity_user_names", key = "#userId")
+    public String getUserFullNameById(Long userId) {
+        if (userId == null) return "Chưa phân công";
+
+        try {
+            // Gọi sang module User để lấy thông tin
+            // Tùy vào việc UserService trả về cái gì, map ra cái Tên 
+            var user = userService.getById(userId); 
+            return user.getFullName(); 
+            
+        } catch (Exception e) {
+          
+            return "Người dùng ẩn danh"; 
+        }
     }
 }

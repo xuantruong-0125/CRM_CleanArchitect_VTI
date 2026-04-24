@@ -1,4 +1,4 @@
-package org.example.crm_project.modules.activity_management.application.service;
+package org.example.crm_project.modules.activity_management.application.service.impl;
 
 import lombok.RequiredArgsConstructor;
 
@@ -7,6 +7,7 @@ import org.example.crm_project.modules.activity_management.application.dto.reque
 import org.example.crm_project.modules.activity_management.application.dto.request.UpdateActivityRequest;
 import org.example.crm_project.modules.activity_management.application.dto.response.ActivityResponse;
 import org.example.crm_project.modules.activity_management.application.mapper.ActivityMapper;
+import org.example.crm_project.modules.activity_management.application.service.contracts.ActivityService;
 import org.example.crm_project.modules.activity_management.domain.entity.Activity;
 import org.example.crm_project.modules.activity_management.domain.repository.ActivityRepository;
 import org.example.crm_project.modules.activity_management.domain.repository.ActivityUserProvider;
@@ -24,10 +25,10 @@ import org.springframework.cache.annotation.CacheEvict;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor // cái này của Lombok
-public class ActivityService {
+@RequiredArgsConstructor
+public class ActivityServiceImpl implements ActivityService {
 
-    private final ActivityRepository repository;
+     private final ActivityRepository repository;
     private final ActivityUserProvider userProvider;
 
     // 1. THÊM MỚI
@@ -41,7 +42,7 @@ public class ActivityService {
         Activity savedActivity = repository.save(activity);
 
         // Lấy tên người thực hiện để trả về Response
-        String userName = userProvider.getUserNameById(savedActivity.getPerformedBy());
+        String userName = userProvider.getUserFullNameById(savedActivity.getPerformedBy());
 
         return ActivityMapper.toResponse(savedActivity, userName);
     }
@@ -62,7 +63,7 @@ public class ActivityService {
                 request.getActivityType());
 
         Activity updatedActivity = repository.save(existingActivity);
-        String userName = userProvider.getUserNameById(updatedActivity.getPerformedBy());
+        String userName = userProvider.getUserFullNameById(updatedActivity.getPerformedBy());
 
         return ActivityMapper.toResponse(updatedActivity, userName);
     }
@@ -85,7 +86,7 @@ public class ActivityService {
         // 2. Chuyển đổi từ Domain Entity sang Response DTO
         List<ActivityResponse> responses = pagedActivities.content().stream()
                 .map(activity -> {
-                    String userName = userProvider.getUserNameById(activity.getPerformedBy());
+                    String userName = userProvider.getUserFullNameById(activity.getPerformedBy());
                     return ActivityMapper.toResponse(activity, userName);
                 })
                 .toList();
@@ -104,7 +105,7 @@ public class ActivityService {
 
         // GIẢ SỬ: Sau này Duy gọi sang UserModule để lấy tên theo ID
         // Hiện tại mình giả lập tên là "Admin" để Duy test API trước
-        String employeeName = userProvider.getUserNameById(activity.getPerformedBy());
+        String employeeName = userProvider.getUserFullNameById(activity.getPerformedBy());
 
         return ActivityMapper.toResponse(activity, employeeName);
     }
@@ -116,7 +117,7 @@ public class ActivityService {
         // 2. Map sang Response
         List<ActivityResponse> responses = pagedActivities.content().stream()
                 .map(activity -> {
-                    String userName = userProvider.getUserNameById(activity.getPerformedBy());
+                    String userName = userProvider.getUserFullNameById(activity.getPerformedBy());
                     return ActivityMapper.toResponse(activity, userName);
                 })
                 .toList();
@@ -126,4 +127,42 @@ public class ActivityService {
                 pagedActivities.totalElements(),
                 pagedActivities.totalPages());
     }
+
+    // 4. XÓA HÀNG LOẠT
+    @CacheEvict(value = "activities", allEntries = true)
+    @Transactional
+    public void deleteBulk(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+        // Duy dùng phương thức InBatch để xóa cực nhanh cho danh sách lớn
+        repository.deleteAllByIdInBatch(ids);
+    }
+
+    // @Override
+    // @Transactional
+    // @CacheEvict(value = "activities", allEntries = true) // Xóa cache để trang danh sách cập nhật data mới
+    // public ActivityResponse update(Long id, UpdateActivityRequest request) {
+    //     // 1. Tìm bản ghi cũ trong DB
+    //     Activity existingActivity = repository.findById(id)
+    //             .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy hoạt động để cập nhật: " + id));
+
+    //     // 2. Cập nhật thông tin (Duy gọi hàm updateInfo trong Entity)
+    //     existingActivity.updateInfo(
+    //             request.getSubject(),
+    //             request.getDescription(),
+    //             request.getStatus(),
+    //             request.getActivityType()
+    //             // Thêm các trường khác nếu cần như startDate, endDate...
+    //     );
+
+    //     // 3. Lưu vào MySQL
+    //     Activity updatedActivity = repository.save(existingActivity);
+
+    //     // 4. Lấy tên người dùng (từ Redis/UserModule) để đóng gói trả về
+    //     String userName = userProvider.getUserFullNameById(updatedActivity.getPerformedBy());
+
+    //     return ActivityMapper.toResponse(updatedActivity, userName);
+    // }
+    
 }
