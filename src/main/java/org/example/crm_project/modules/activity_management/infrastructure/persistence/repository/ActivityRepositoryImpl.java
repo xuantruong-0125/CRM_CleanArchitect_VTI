@@ -85,18 +85,26 @@ public class ActivityRepositoryImpl implements ActivityRepository {
 
         Integer typeAsNumber = null;
         if (safeActivityType != null) {
-            typeAsNumber = switch (safeActivityType.toUpperCase()) {
-                case "CALL" -> 1;
-                case "EMAIL" -> 2;
-                case "MEETING" -> 3;
-                default -> null;
-            };
+           try {
+                typeAsNumber = org.example.crm_project.modules.activity_management.domain.constant.ActivityType
+                        .valueOf(safeActivityType.toUpperCase())
+                        .getValue();
+            } catch (IllegalArgumentException e) {
+                typeAsNumber = null; 
+            }
         }
 
         // 3. Gọi JpaRepository lấy Page của Spring
         Page<ActivityJpaEntity> springPage = jpaRepository.searchActivities(
-                safeSearch, criteria.status(), typeAsNumber, criteria.performedBy(),
-                criteria.relatedToId(), safeRelatedToType, criteria.fromDate(), criteria.toDate(),
+                safeSearch, 
+                criteria.status(),
+                 typeAsNumber, 
+                 criteria.performedBy(),
+                criteria.relatedToId(), 
+                safeRelatedToType, 
+                criteria.fromDate(), 
+                criteria.toDate(),
+                criteria.important(),
                 pageable);
 
         // 4. "Đóng gói" lại thành PagedResult của Domain

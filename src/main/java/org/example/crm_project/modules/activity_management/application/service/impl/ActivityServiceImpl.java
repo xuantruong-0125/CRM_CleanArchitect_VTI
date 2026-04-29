@@ -60,7 +60,12 @@ public class ActivityServiceImpl implements ActivityService {
                 request.getSubject(),
                 request.getDescription(),
                 request.getStatus(),
-                request.getActivityType());
+                request.getStartDate(),     // Bổ sung
+                request.getEndDate(),       // Bổ sung
+                request.getCompletedAt(),   // Bổ sung
+                request.getOutcome(),       // Bổ sung
+                request.getIsImportant()    // Bổ sung
+        );
 
         Activity updatedActivity = repository.save(existingActivity);
         String userName = userProvider.getUserFullNameById(updatedActivity.getPerformedBy());

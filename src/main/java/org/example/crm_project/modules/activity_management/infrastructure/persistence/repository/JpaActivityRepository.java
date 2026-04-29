@@ -27,7 +27,8 @@ public interface JpaActivityRepository extends JpaRepository<ActivityJpaEntity, 
             "AND (:relatedToId IS NULL OR a.relatedToId = :relatedToId) " +
             "AND (:relatedToType IS NULL OR a.relatedToType = :relatedToType) " +
             "AND (:fromDate IS NULL OR a.startDate >= :fromDate) " +
-            "AND (:toDate IS NULL OR a.startDate <= :toDate)")
+            "AND (:toDate IS NULL OR a.startDate <= :toDate)"+
+            "AND (:important IS NULL OR a.isImportant = :important)")
     Page<ActivityJpaEntity> searchActivities(
             @Param("search") String search,
             @Param("status") Integer status,
@@ -37,5 +38,6 @@ public interface JpaActivityRepository extends JpaRepository<ActivityJpaEntity, 
             @Param("relatedToType") String relatedToType,
             @Param("fromDate") LocalDateTime fromDate,
             @Param("toDate") LocalDateTime toDate,
+            @Param("important") Boolean important,
             Pageable pageable);
 }

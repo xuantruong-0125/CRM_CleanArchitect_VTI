@@ -16,9 +16,9 @@ public class CreateActivityRequest {
     @NotBlank(message = "Tiêu đề không được để trống")
     private String subject;
     
-    private String description;   // Cho phép null thoải mái
-    private String relatedToType; // Cho phép null thoải mái
-    private Long relatedToId;     // Cho phép null thoải mái
+    private String description;   
+    private String relatedToType; 
+    private Long relatedToId;     
     
     @NotNull(message = "Người thực hiện không được để trống")
     private Long performedBy;

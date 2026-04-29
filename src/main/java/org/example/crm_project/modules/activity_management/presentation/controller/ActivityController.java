@@ -41,7 +41,8 @@ public class ActivityController {
             @RequestParam(required = false) Long relatedToId,
             @RequestParam(required = false) String relatedToType,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+            @RequestParam(required = false) Boolean important) {
 
         // 2. Tạo Pagination (Đồ của Duy) thay vì Pageable (Đồ của Spring)
         Pagination pagination = new Pagination(page, size);
@@ -51,11 +52,20 @@ public class ActivityController {
         LocalDateTime endDateTime = (toDate != null) ? toDate.atTime(LocalTime.MAX) : null;
 
         ActivitySearchCriteria criteria = new ActivitySearchCriteria(
-                search, status, activityType, performedBy, relatedToId, relatedToType, startDateTime, endDateTime);
+                search,
+                status,
+                activityType,
+                performedBy,
+                relatedToId,
+                relatedToType,
+                startDateTime,
+                endDateTime,
+                important);
 
         // 3. Truyền pagination vào các hàm service
         if (search == null && status == null && activityType == null
-                && performedBy == null && relatedToId == null && fromDate == null && toDate == null) {
+                && performedBy == null && relatedToId == null && fromDate == null && toDate == null
+                && relatedToType == null && important == null) {
             return activityService.getAll(pagination);
         }
 
@@ -94,17 +104,16 @@ public class ActivityController {
         activityService.deleteBulk(ids);
         return ResponseEntity.ok("Đã xóa thành công " + ids.size() + " dòng");
     }
-    
+
     @PutMapping("/{id}")
     public ResponseEntity<ActivityResponse> update(
-            @PathVariable Long id, 
+            @PathVariable Long id,
             @Valid @RequestBody UpdateActivityRequest request) {
-        
+
         // Gọi xuống Service để xử lý
         ActivityResponse updated = activityService.update(id, request);
-        
+
         return ResponseEntity.ok(updated);
     }
-
 
 }

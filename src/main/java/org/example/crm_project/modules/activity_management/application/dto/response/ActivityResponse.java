@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.example.crm_project.modules.activity_management.domain.constant.ActivityStatus;
 import org.example.crm_project.modules.activity_management.domain.constant.ActivityType;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -29,4 +31,9 @@ public class ActivityResponse implements Serializable{
     private String outcome;
     private ActivityStatus status;
     private boolean isImportant;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime createdAt;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime updatedAt;
 }

@@ -27,6 +27,8 @@ public class ActivityMapper {
                 .outcome(entity.getOutcome())
                 .status(entity.getStatus())
                 .isImportant(entity.isImportant())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 

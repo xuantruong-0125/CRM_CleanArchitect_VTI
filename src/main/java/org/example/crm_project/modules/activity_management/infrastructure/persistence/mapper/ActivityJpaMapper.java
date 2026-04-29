@@ -15,7 +15,7 @@ public class ActivityJpaMapper {
         ActivityType type = Arrays.stream(ActivityType.values())
                 .filter(t -> t.getValue() == jpa.getActivityType())
                 .findFirst()
-                .orElse(ActivityType.NOTE);
+                .orElse(ActivityType.CALL);
 
         ActivityStatus status = jpa.getStatus() != null
                 ? Arrays.stream(ActivityStatus.values())
@@ -37,7 +37,10 @@ public class ActivityJpaMapper {
                 jpa.getRelatedToId(),
                 jpa.getPerformedBy(),
                 status, // Nhét status đã convert vào đây
-                jpa.getIsImportant() != null && jpa.getIsImportant() == 1
+                jpa.getIsImportant() != null ? jpa.getIsImportant() : false,
+                jpa.getCreatedAt(),
+                jpa.getUpdatedAt()
+
         );
     }
 
@@ -57,7 +60,7 @@ public class ActivityJpaMapper {
                 .relatedToId(domain.getRelatedToId())
                 .performedBy(domain.getPerformedBy())
                 .status(domain.getStatus() != null ? domain.getStatus().getValue() : null) // Dịch ngược ra số ở đây
-                .isImportant(domain.isImportant() ? 1 : 0)
+                .isImportant(domain.isImportant())
                 .build();
     }
 }

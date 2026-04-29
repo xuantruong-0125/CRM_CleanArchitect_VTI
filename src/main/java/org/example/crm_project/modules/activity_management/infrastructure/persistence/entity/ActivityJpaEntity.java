@@ -74,7 +74,7 @@ public class ActivityJpaEntity {
     private Integer status;
 
     @Column(name = "is_important", columnDefinition = "TINYINT(1)")
-    private Integer isImportant;
+    private Boolean isImportant;
     // Cột 18: Soft delete
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;

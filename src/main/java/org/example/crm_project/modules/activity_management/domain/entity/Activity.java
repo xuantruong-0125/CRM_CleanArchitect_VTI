@@ -21,13 +21,15 @@ public class Activity  {
     private Long performedBy;
     private ActivityStatus status;
     private boolean isImportant;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public Activity() {
     }
 
     public Activity(Long id, ActivityType activityType, String subject, String description, LocalDateTime startDate,
             LocalDateTime endDate, LocalDateTime completedAt, String outcome, String relatedToType, Long relatedToId,
-            Long performedBy, ActivityStatus status, boolean isImportant) {
+            Long performedBy, ActivityStatus status, boolean isImportant,LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.activityType = activityType;
         this.subject = subject;
@@ -41,6 +43,8 @@ public class Activity  {
         this.performedBy = performedBy;
         this.status = status;
         this.isImportant = isImportant;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
     // ===== BUSINESS LOGIC =====
 
@@ -126,6 +130,15 @@ public class Activity  {
     public boolean isImportant() {
         return isImportant;
     }
+    
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 
     // ===== CONSTRUCTOR DÙNG ĐỂ TẠO MỚI (Từ Service gọi) =====
     public Activity(ActivityType activityType, String subject, String description,
@@ -188,16 +201,40 @@ public class Activity  {
             // Sử dụng constructor đầy đủ tham số đã có sẵn của Duy để tạo đối tượng
             return new Activity(id, activityType, subject, description, startDate, endDate, 
                                 completedAt, outcome, relatedToType, relatedToId, 
-                                performedBy, status, isImportant);
+                                performedBy, status, isImportant,null, null);
         }
     }
     // ===== BUSINESS LOGIC =====
-    public void updateInfo(String subject, String description, ActivityStatus status, ActivityType activityType) {
-        validateSubject(subject); // Tái sử dụng hàm validate Duy đã viết
+    public void updateInfo(String subject, String description, ActivityStatus status, 
+                           LocalDateTime startDate, LocalDateTime endDate, 
+                           LocalDateTime completedAt, String outcome, Boolean important) {
+                           
+        validateSubject(subject); 
         this.subject = subject;
         this.description = description;
-        if (status != null) this.status = status;
-        if (activityType != null) this.activityType = activityType;
+        
+        if (startDate != null) this.startDate = startDate;
+        if (endDate != null) this.endDate = endDate;
+        if (outcome != null) this.outcome = outcome;
+        if (important != null) this.isImportant = important;
+
+        // 1. Cập nhật status trước
+        if (status != null) {
+            this.status = status;
+        }
+
+        // 2. XỬ LÝ NGHIỆP VỤ COMPLETED_AT
+        if (this.status == ActivityStatus.COMPLETED) {
+            if (completedAt != null) {
+                this.completedAt = completedAt;
+            } 
+            else if (this.completedAt == null) {
+                this.completedAt = LocalDateTime.now();
+            }
+        } else {
+         
+            this.completedAt = null;
+        }
     }
 
 }
