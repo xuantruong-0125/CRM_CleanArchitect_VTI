@@ -58,9 +58,10 @@ public class ContactController {
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<ContactResponse>>> searchContacts(
             @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(required = false) Boolean isPrimary,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        PageResponse<ContactResponse> response = contactService.search(keyword, page, size);
+        PageResponse<ContactResponse> response = contactService.search(keyword, isPrimary, page, size);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

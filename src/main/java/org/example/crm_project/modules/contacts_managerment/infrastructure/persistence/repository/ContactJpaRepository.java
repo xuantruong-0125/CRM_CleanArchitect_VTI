@@ -20,16 +20,22 @@ public interface ContactJpaRepository extends JpaRepository<ContactEntity, Long>
     Page<ContactEntity> findAllActive(Pageable pageable);
 
     @Query("SELECT c FROM ContactEntity c WHERE c.isActive = true AND " +
+           "(:isPrimary IS NULL OR c.isPrimary = :isPrimary) AND " +
            "(:keyword IS NULL OR :keyword = '' OR " +
            "LOWER(c.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(c.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "LOWER(c.phone) LIKE LOWER(CONCAT('%', :keyword, '%')))")
-    Page<ContactEntity> searchContacts(@Param("keyword") String keyword, Pageable pageable);
+           "LOWER(c.phone) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+           "ORDER BY c.createdAt DESC")
+    Page<ContactEntity> searchContacts(@Param("keyword") String keyword, 
+                                       @Param("isPrimary") Boolean isPrimary, 
+                                       Pageable pageable);
 
     @Query("SELECT COUNT(c) FROM ContactEntity c WHERE c.isActive = true AND " +
+           "(:isPrimary IS NULL OR c.isPrimary = :isPrimary) AND " +
            "(:keyword IS NULL OR :keyword = '' OR " +
            "LOWER(c.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(c.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(c.phone) LIKE LOWER(CONCAT('%', :keyword, '%')))")
-    long countSearchContacts(@Param("keyword") String keyword);
+    long countSearchContacts(@Param("keyword") String keyword, 
+                             @Param("isPrimary") Boolean isPrimary);
 }

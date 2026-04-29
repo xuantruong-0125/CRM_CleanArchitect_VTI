@@ -6,5 +6,5 @@ import org.example.crm_project.modules.contacts_managerment.application.dto.resp
 import org.example.crm_project.modules.contacts_managerment.application.dto.response.PageResponse;
 
 public interface ContactService extends BaseService<CreateContactRequest, UpdateContactRequest, ContactResponse, Long> {
-    PageResponse<ContactResponse> search(String keyword, int page, int size);
+    PageResponse<ContactResponse> search(String keyword, Boolean isPrimary, int page, int size);
 }

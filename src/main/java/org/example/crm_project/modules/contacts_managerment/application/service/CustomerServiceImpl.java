@@ -2,7 +2,6 @@ package org.example.crm_project.modules.contacts_managerment.application.service
 
 import org.example.crm_project.modules.contacts_managerment.application.interfaces.CustomerService;
 import org.example.crm_project.modules.contacts_managerment.domain.entity.Customer;
-import org.example.crm_project.modules.contacts_managerment.domain.repository.CustomerRepository;
 import org.example.crm_project.modules.contacts_managerment.infrastructure.persistence.mapper.CustomerPersistenceMapper;
 import org.example.crm_project.modules.contacts_managerment.infrastructure.persistence.repository.JpaCustomerRepository;
 import org.springframework.stereotype.Service;

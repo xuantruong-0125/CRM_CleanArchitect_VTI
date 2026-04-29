@@ -85,9 +85,9 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public PageResponse<ContactResponse> search(String keyword, int page, int size) {
-        List<Contact> contacts = contactRepository.search(keyword, page, size);
-        long totalItems = contactRepository.countSearch(keyword);
+    public PageResponse<ContactResponse> search(String keyword, Boolean isPrimary, int page, int size) {
+        List<Contact> contacts = contactRepository.search(keyword, isPrimary, page, size);
+        long totalItems = contactRepository.countSearch(keyword, isPrimary);
         List<ContactResponse> contactResponses = contacts.stream()
                 .map(contactMapper::toResponse)
                 .collect(Collectors.toList());

@@ -12,7 +12,9 @@ public class UpdateContactRequest {
     private String address;
     private LocalDate dob;
     private String notes;
+    @com.fasterxml.jackson.annotation.JsonProperty("isPrimary")
     private boolean isPrimary;
+    @com.fasterxml.jackson.annotation.JsonProperty("isActive")
     private boolean isActive;
     private Long customerId;
 }

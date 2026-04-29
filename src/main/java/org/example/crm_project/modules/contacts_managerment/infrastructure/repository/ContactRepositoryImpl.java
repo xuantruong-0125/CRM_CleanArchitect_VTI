@@ -65,8 +65,8 @@ public class ContactRepositoryImpl implements ContactRepository {
     }
 
     @Override
-    public List<Contact> search(String keyword, int page, int size) {
-        return contactJpaRepository.searchContacts(keyword, PageRequest.of(page - 1, size))
+    public List<Contact> search(String keyword, Boolean isPrimary, int page, int size) {
+        return contactJpaRepository.searchContacts(keyword, isPrimary, PageRequest.of(page - 1, size))
                 .getContent()
                 .stream()
                 .map(mapper::toDomain)
@@ -74,7 +74,7 @@ public class ContactRepositoryImpl implements ContactRepository {
     }
 
     @Override
-    public long countSearch(String keyword) {
-        return contactJpaRepository.countSearchContacts(keyword);
+    public long countSearch(String keyword, Boolean isPrimary) {
+        return contactJpaRepository.countSearchContacts(keyword, isPrimary);
     }
 }
