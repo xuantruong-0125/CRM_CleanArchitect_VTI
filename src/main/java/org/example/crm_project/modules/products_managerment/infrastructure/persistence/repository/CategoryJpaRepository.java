@@ -22,6 +22,7 @@ public interface CategoryJpaRepository extends JpaRepository<CategoryEntity, Lon
 
     @Query("SELECT COUNT(c) FROM CategoryEntity c WHERE (:keyword IS NULL OR :keyword = '' OR c.name LIKE %:keyword% OR c.description LIKE %:keyword%) AND c.isActive = true AND c.deletedAt IS NULL")
     long countSearch(@Param("keyword") String keyword);
+
     @Query("SELECT COUNT(c) FROM CategoryEntity c WHERE c.isActive = true AND c.deletedAt IS NULL")
     long countActive();
 }

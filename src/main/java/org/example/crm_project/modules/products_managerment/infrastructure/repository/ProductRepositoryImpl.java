@@ -61,15 +61,15 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public List<Product> search(String keyword, Long categoryId, int page, int size) {
-        return jpaRepository.search(keyword, categoryId, PageRequest.of(page, size)).stream()
+    public List<Product> search(String keyword, Long categoryId, Double minPrice, Double maxPrice, String status, int page, int size) {
+        return jpaRepository.search(keyword, categoryId, minPrice, maxPrice, status, PageRequest.of(page, size)).stream()
                 .map(ProductPersistenceMapper::toDomain)
                 .toList();
     }
-
+    
     @Override
-    public long countSearch(String keyword, Long categoryId) {
-        return jpaRepository.countSearch(keyword, categoryId);
+    public long countSearch(String keyword, Long categoryId, Double minPrice, Double maxPrice, String status) {
+        return jpaRepository.countSearch(keyword, categoryId, minPrice, maxPrice, status);
     }
 
     @Override

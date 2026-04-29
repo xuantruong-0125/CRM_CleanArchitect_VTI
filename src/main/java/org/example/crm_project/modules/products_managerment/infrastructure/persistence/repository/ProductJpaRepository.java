@@ -17,17 +17,36 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
     @Query("SELECT p FROM ProductEntity p WHERE p.isActive = true AND p.deletedAt IS NULL AND p.categoryEntity.isActive = true AND p.categoryEntity.deletedAt IS NULL")
     Page<ProductEntity> findAllActive(Pageable pageable);
 
-    @Query("SELECT p FROM ProductEntity p WHERE " +
-           "(:keyword IS NULL OR p.name LIKE %:keyword% OR p.skuCode LIKE %:keyword% OR p.description LIKE %:keyword%) " +
+    @Query("SELECT p FROM ProductEntity p " +
+           "LEFT JOIN p.prices pr ON (pr.isActive = true AND pr.deletedAt IS NULL) " +
+           "WHERE (:keyword IS NULL OR :keyword = '' OR p.name LIKE CONCAT('%', :keyword, '%') OR p.skuCode LIKE CONCAT('%', :keyword, '%') OR p.description LIKE CONCAT('%', :keyword, '%')) " +
            "AND (:categoryId IS NULL OR p.categoryEntity.id = :categoryId) " +
+           "AND (:minPrice IS NULL OR pr.finalPrice >= :minPrice) " +
+           "AND (:maxPrice IS NULL OR pr.finalPrice <= :maxPrice) " +
+           "AND (:status IS NULL OR :status = '' OR (:status = 'Active' AND p.isActive = true) OR (:status = 'Inactive' AND p.isActive = false)) " +
            "AND p.isActive = true AND p.deletedAt IS NULL AND p.categoryEntity.isActive = true AND p.categoryEntity.deletedAt IS NULL")
-    Page<ProductEntity> search(@Param("keyword") String keyword, @Param("categoryId") Long categoryId, Pageable pageable);
+    Page<ProductEntity> search(
+            @Param("keyword") String keyword, 
+            @Param("categoryId") Long categoryId, 
+            @Param("minPrice") Double minPrice,
+            @Param("maxPrice") Double maxPrice,
+            @Param("status") String status,
+            Pageable pageable);
 
-    @Query("SELECT COUNT(p) FROM ProductEntity p WHERE " +
-           "(:keyword IS NULL OR p.name LIKE %:keyword% OR p.skuCode LIKE %:keyword% OR p.description LIKE %:keyword%) " +
+    @Query("SELECT COUNT(DISTINCT p.id) FROM ProductEntity p " +
+           "LEFT JOIN p.prices pr ON (pr.isActive = true AND pr.deletedAt IS NULL) " +
+           "WHERE (:keyword IS NULL OR :keyword = '' OR p.name LIKE CONCAT('%', :keyword, '%') OR p.skuCode LIKE CONCAT('%', :keyword, '%') OR p.description LIKE CONCAT('%', :keyword, '%')) " +
            "AND (:categoryId IS NULL OR p.categoryEntity.id = :categoryId) " +
+           "AND (:minPrice IS NULL OR pr.finalPrice >= :minPrice) " +
+           "AND (:maxPrice IS NULL OR pr.finalPrice <= :maxPrice) " +
+           "AND (:status IS NULL OR :status = '' OR (:status = 'Active' AND p.isActive = true) OR (:status = 'Inactive' AND p.isActive = false)) " +
            "AND p.isActive = true AND p.deletedAt IS NULL AND p.categoryEntity.isActive = true AND p.categoryEntity.deletedAt IS NULL")
-    long countSearch(@Param("keyword") String keyword, @Param("categoryId") Long categoryId);
+    long countSearch(
+            @Param("keyword") String keyword, 
+            @Param("categoryId") Long categoryId,
+            @Param("minPrice") Double minPrice,
+            @Param("maxPrice") Double maxPrice,
+            @Param("status") String status);
 
     @Query("SELECT p.categoryEntity.id, COUNT(p) FROM ProductEntity p WHERE p.isActive = true AND p.deletedAt IS NULL AND p.categoryEntity.isActive = true AND p.categoryEntity.deletedAt IS NULL GROUP BY p.categoryEntity.id")
     List<Object[]> countActiveProductsGroupedByCategory();

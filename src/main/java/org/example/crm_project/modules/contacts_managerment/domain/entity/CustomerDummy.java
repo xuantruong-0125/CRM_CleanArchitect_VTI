@@ -1,8 +1,5 @@
 package org.example.crm_project.modules.contacts_managerment.domain.entity;
 
-import jakarta.persistence.*;
-import org.example.crm_project.modules.contacts_managerment.infrastructure.persistence.entity.ContactEntity;
-
 import java.util.List;
 
 public class CustomerDummy {

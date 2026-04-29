@@ -1,12 +1,9 @@
 package org.example.crm_project.modules.products_managerment.domain.entity;
 
-import org.example.crm_project.modules.products_managerment.domain.entity.Category;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 public class Product {
     private Long id;
@@ -23,12 +20,13 @@ public class Product {
     private Category category;
     private List<Price> prices = new ArrayList<>();
 
-    public Product() {}
+    public Product() {
+    }
 
     public Product(Long id, String skuCode, String name, String imageUrl,
-                   String description, LocalDateTime createdAt, LocalDateTime updatedAt,
-                   LocalDateTime deletedAt, Long createdBy, Long updatedBy,
-                   Boolean isActive, Category category) {
+            String description, LocalDateTime createdAt, LocalDateTime updatedAt,
+            LocalDateTime deletedAt, Long createdBy, Long updatedBy,
+            Boolean isActive, Category category) {
         this.id = id;
         this.skuCode = skuCode;
         this.name = name;
@@ -43,9 +41,8 @@ public class Product {
         this.category = category;
     }
 
-
     public static Product create(String skuCode, String name, String imageUrl,
-                                 String description, Category category, Long createdBy) {
+            String description, Category category, Long createdBy) {
         Product p = new Product();
         p.skuCode = skuCode;
         p.name = name;
@@ -84,39 +81,99 @@ public class Product {
         return Collections.unmodifiableList(prices);
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getSkuCode() { return skuCode; }
-    public void setSkuCode(String skuCode) { this.skuCode = skuCode; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getSkuCode() {
+        return skuCode;
+    }
 
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public void setSkuCode(String skuCode) {
+        this.skuCode = skuCode;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getName() {
+        return name;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public String getImageUrl() {
+        return imageUrl;
+    }
 
-    public LocalDateTime getDeletedAt() { return deletedAt; }
-    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
-    public Long getCreatedBy() { return createdBy; }
-    public void setCreatedBy(Long createdBy) { this.createdBy = createdBy; }
+    public String getDescription() {
+        return description;
+    }
 
-    public Long getUpdatedBy() { return updatedBy; }
-    public void setUpdatedBy(Long updatedBy) { this.updatedBy = updatedBy; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-    public Boolean getIsActive() { return isActive; }
-    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-    public Category getCategory() { return category; }
-    public void setCategory(Category category) { this.category = category; }
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Long getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(Long updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 }

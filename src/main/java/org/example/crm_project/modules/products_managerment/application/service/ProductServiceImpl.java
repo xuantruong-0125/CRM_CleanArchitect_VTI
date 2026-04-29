@@ -96,12 +96,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public PageResponse<ProductResponse> search(String keyword, Long categoryId, int page, int size) {
-        List<ProductResponse> items = productRepository.search(keyword, categoryId, page, size).stream()
+    public PageResponse<ProductResponse> search(String keyword, Long categoryId, Double minPrice, Double maxPrice, String status, int page, int size) {
+        List<ProductResponse> items = productRepository.search(keyword, categoryId, minPrice, maxPrice, status, page, size).stream()
                 .map(ProductMapper::toResponse)
                 .toList();
         
-        long total = productRepository.countSearch(keyword, categoryId);
+        long total = productRepository.countSearch(keyword, categoryId, minPrice, maxPrice, status);
         
         return PageResponse.of(items, page, size, total);
     }

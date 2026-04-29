@@ -1,7 +1,5 @@
 package org.example.crm_project.modules.products_managerment.domain.entity;
 
-import org.example.crm_project.modules.products_managerment.domain.entity.Product;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -49,7 +47,6 @@ public class Price {
         BigDecimal taxRateAsDecimal = tax.divide(new BigDecimal("100")); 
 
         BigDecimal finalPrice = basePrice.multiply(BigDecimal.ONE.add(taxRateAsDecimal));
-
 
         return finalPrice.setScale(0, RoundingMode.HALF_UP);
     }

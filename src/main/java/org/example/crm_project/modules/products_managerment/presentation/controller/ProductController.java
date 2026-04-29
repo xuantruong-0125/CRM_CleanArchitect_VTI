@@ -56,9 +56,12 @@ public class ProductController {
     public ApiResponse<PageResponse<ProductResponse>> search(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ApiResponse.success(productService.search(keyword, categoryId, page, size));
+        return ApiResponse.success(productService.search(keyword, categoryId, minPrice, maxPrice, status, page, size));
     }
 
     @GetMapping("/check-sku")

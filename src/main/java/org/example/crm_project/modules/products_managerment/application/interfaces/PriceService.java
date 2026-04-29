@@ -4,7 +4,6 @@ import org.example.crm_project.modules.products_managerment.application.dto.requ
 import org.example.crm_project.modules.products_managerment.application.dto.request.UpdatePriceRequest;
 import org.example.crm_project.modules.products_managerment.application.dto.response.PageResponse;
 import org.example.crm_project.modules.products_managerment.application.dto.response.PriceResponse;
-import org.example.crm_project.modules.products_managerment.application.interfaces.BaseService;
 
 import java.util.List;
 
