@@ -7,6 +7,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class ContactPersistenceMapper {
 
+    private final CustomerPersistenceMapper customerPersistenceMapper;
+
+    public ContactPersistenceMapper(CustomerPersistenceMapper customerPersistenceMapper) {
+        this.customerPersistenceMapper = customerPersistenceMapper;
+    }
+
     public ContactEntity toEntity(Contact contact) {
         if (contact == null) return null;
         return ContactEntity.builder()
@@ -25,12 +31,13 @@ public class ContactPersistenceMapper {
                 .updatedAt(contact.getUpdatedAt())
                 .isActive(contact.isActive())
                 .deletedAt(contact.getDeletedAt())
+                .customer(customerPersistenceMapper.toEntity(contact.getCustomer()))
                 .build();
     }
 
     public Contact toDomain(ContactEntity entity) {
         if (entity == null) return null;
-        return new Contact(
+        Contact contact = new Contact(
                 entity.getId(),
                 entity.getFullName(),
                 entity.getPosition(),
@@ -47,5 +54,7 @@ public class ContactPersistenceMapper {
                 entity.isActive(),
                 entity.getDeletedAt()
         );
+        contact.setCustomer(customerPersistenceMapper.toDomain(entity.getCustomer()));
+        return contact;
     }
 }

@@ -17,4 +17,6 @@ public class ContactResponse {
     private String notes;
     private boolean isPrimary;
     private boolean isActive;
+    private Long customerId;
+    private String customerName;
 }

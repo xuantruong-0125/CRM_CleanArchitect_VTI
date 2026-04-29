@@ -28,7 +28,7 @@ public class Contact {
     private boolean isActive = true;
 
     private LocalDateTime deletedAt;
-    private  CustomerDummy customer;
+    private Customer customer;
 
     public Contact() {
     }
@@ -171,11 +171,11 @@ public class Contact {
         this.deletedAt = deletedAt;
     }
 
-    public CustomerDummy getCustomer() {
+    public Customer getCustomer() {
         return customer;
     }
 
-    public void setCustomer(CustomerDummy customer) {
+    public void setCustomer(Customer customer) {
         this.customer = customer;
     }
 }

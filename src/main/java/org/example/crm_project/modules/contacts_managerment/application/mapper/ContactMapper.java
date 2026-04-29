@@ -43,7 +43,7 @@ public class ContactMapper {
 
     public ContactResponse toResponse(Contact contact) {
         if (contact == null) return null;
-        return ContactResponse.builder()
+        ContactResponse.ContactResponseBuilder builder = ContactResponse.builder()
                 .id(contact.getId())
                 .fullName(contact.getFullName())
                 .position(contact.getPosition())
@@ -53,7 +53,13 @@ public class ContactMapper {
                 .dob(contact.getDob())
                 .notes(contact.getNotes())
                 .isPrimary(contact.isPrimary())
-                .isActive(contact.isActive())
-                .build();
+                .isActive(contact.isActive());
+
+        if (contact.getCustomer() != null) {
+            builder.customerId(contact.getCustomer().getId());
+            builder.customerName(contact.getCustomer().getName());
+        }
+
+        return builder.build();
     }
 }

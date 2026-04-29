@@ -14,4 +14,5 @@ public class CreateContactRequest {
     private String notes;
     private boolean isPrimary;
     private boolean isActive;
+    private Long customerId;
 }

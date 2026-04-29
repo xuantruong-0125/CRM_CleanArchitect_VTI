@@ -63,5 +63,5 @@ public class ContactEntity {
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
-    private CustomerDummyEntity customerDummyEntity;
+    private CustomerEntity customer;
 }

@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 public class UploadController {
 
     @PostMapping
-    public ApiResponse<String> uploadImage(@RequestParam("image") MultipartFile file) {
+    public ApiResponse<String> uploadImage(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("File tải lên không được để trống");
         }

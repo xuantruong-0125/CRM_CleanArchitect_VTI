@@ -9,6 +9,7 @@ import org.example.crm_project.modules.contacts_managerment.application.mapper.C
 import org.example.crm_project.modules.contacts_managerment.domain.entity.Contact;
 import org.example.crm_project.modules.contacts_managerment.domain.exception.ContactNotFoundException;
 import org.example.crm_project.modules.contacts_managerment.domain.repository.ContactRepository;
+import org.example.crm_project.modules.contacts_managerment.domain.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,16 +20,22 @@ import java.util.stream.Collectors;
 public class ContactServiceImpl implements ContactService {
 
     private final ContactRepository contactRepository;
+    private final CustomerRepository customerRepository;
     private final ContactMapper contactMapper;
 
-    public ContactServiceImpl(ContactRepository contactRepository, ContactMapper contactMapper) {
+    public ContactServiceImpl(ContactRepository contactRepository, CustomerRepository customerRepository, ContactMapper contactMapper) {
         this.contactRepository = contactRepository;
+        this.customerRepository = customerRepository;
         this.contactMapper = contactMapper;
     }
 
     @Override
     public ContactResponse create(CreateContactRequest request) {
         Contact contact = contactMapper.toEntity(request);
+        if (request.getCustomerId() != null) {
+            contact.setCustomer(customerRepository.findById(request.getCustomerId())
+                    .orElseThrow(() -> new RuntimeException("Customer not found with id: " + request.getCustomerId())));
+        }
         Contact savedContact = contactRepository.save(contact);
         return contactMapper.toResponse(savedContact);
     }
@@ -38,6 +45,10 @@ public class ContactServiceImpl implements ContactService {
         Contact contact = contactRepository.findById(id)
                 .orElseThrow(() -> new ContactNotFoundException("Contact not found with id: " + id));
         contactMapper.updateEntity(contact, request);
+        if (request.getCustomerId() != null) {
+            contact.setCustomer(customerRepository.findById(request.getCustomerId())
+                    .orElseThrow(() -> new RuntimeException("Customer not found with id: " + request.getCustomerId())));
+        }
         Contact updatedContact = contactRepository.save(contact);
         return contactMapper.toResponse(updatedContact);
     }
