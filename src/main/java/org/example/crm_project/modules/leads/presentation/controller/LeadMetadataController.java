@@ -81,4 +81,15 @@ public class LeadMetadataController {
                 sortDir
         ));
     }
+
+    @GetMapping("/organizations")
+    public ResponseEntity<LeadPageResponse<LeadReferenceOptionResponse>> searchOrganizations(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortDir
+    ) {
+        return ResponseEntity.ok(leadReferenceService.searchOrganizations(q, page, size, sortBy, sortDir));
+    }
 }

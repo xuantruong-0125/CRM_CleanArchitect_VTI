@@ -116,7 +116,9 @@ public class LeadServiceImpl implements LeadService {
         validateOptionalSearchId(request.getProvinceId(), "provinceId");
         validateOptionalSearchId(request.getOrganizationId(), "organizationId");
         validateOptionalSearchId(request.getSourceId(), "sourceId");
+        validateOptionalSearchId(request.getStatusId(), "statusId");
         validateSearchPhone(request.getPhone());
+        validateSearchEmail(request.getEmail());
 
         PaginationOptions options = normalizePagination(
             request.getPage(),
@@ -129,6 +131,8 @@ public class LeadServiceImpl implements LeadService {
             request.getProvinceId(),
             request.getOrganizationId(),
             normalizeText(request.getPhone()),
+            normalizeText(request.getEmail()),
+            request.getStatusId(),
             request.getSourceId(),
             options.page(),
             options.size(),
@@ -333,6 +337,19 @@ public class LeadServiceImpl implements LeadService {
 
         if (!trimmedPhone.matches("^\\d{1,10}$")) {
             throw new InvalidLeadException("phone search must contain only digits and maximum 10 characters");
+        }
+    }
+
+    private void validateSearchEmail(String email) {
+        if (email == null) {
+            return;
+        }
+        String trimmedEmail = email.trim();
+        if (trimmedEmail.isEmpty()) {
+            return;
+        }
+        if (trimmedEmail.length() > 100) {
+            throw new InvalidLeadException("email search must be less than 100 characters");
         }
     }
 

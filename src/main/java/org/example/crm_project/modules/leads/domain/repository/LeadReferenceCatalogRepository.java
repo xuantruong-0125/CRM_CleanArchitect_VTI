@@ -2,6 +2,7 @@ package org.example.crm_project.modules.leads.domain.repository;
 
 import org.example.crm_project.modules.leads.domain.entity.LeadReferenceOption;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface LeadReferenceCatalogRepository {
@@ -9,6 +10,8 @@ public interface LeadReferenceCatalogRepository {
     List<LeadReferenceOption> findLeadStatuses();
 
     List<LeadReferenceOption> findLeadSources();
+
+    List<LeadReferenceOption> findLeadCampaigns();
 
     List<LeadReferenceOption> findProvinces();
 
@@ -46,4 +49,12 @@ public interface LeadReferenceCatalogRepository {
                                               String sortDir);
 
     long countProvinces(String q, String code);
+
+    List<LeadReferenceOption> searchOrganizations(String q,
+                                                  int page,
+                                                  int size,
+                                                  String SortBy,
+                                                  String SortDir);
+
+    long countOrganizations(String q);
 }

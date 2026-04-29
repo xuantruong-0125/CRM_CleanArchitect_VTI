@@ -17,12 +17,14 @@ public interface LeadRepository {
 
         LeadPageResult<Lead> findAll(int page, int size, String sortBy, String sortDir);
 
-    List<Lead> search(Integer provinceId, Long organizationId, String phone, Long sourceId);
+    List<Lead> search(Integer provinceId, Long organizationId, String phone, String email, Long statusId, Long sourceId);
 
         LeadPageResult<Lead> search(
             Integer provinceId,
             Long organizationId,
             String phone,
+            String email,
+            Long statusId,
             Long sourceId,
             int page,
             int size,

@@ -40,6 +40,16 @@ public class LeadReferenceCatalogRepositoryImpl implements LeadReferenceCatalogR
     }
 
     @Override
+    public List<LeadReferenceOption> findLeadCampaigns() {
+        List<?> rows = entityManager.createNativeQuery("""
+                SELECT id, NULL AS code, name
+                FROM campaigns
+                ORDER BY id
+                """).getResultList();
+        return mapOptions(rows);
+    }
+
+    @Override
     public List<LeadReferenceOption> findProvinces() {
         List<?> rows = entityManager.createNativeQuery("""
                 SELECT id, code, name
@@ -295,6 +305,57 @@ public class LeadReferenceCatalogRepositoryImpl implements LeadReferenceCatalogR
         if (hasText(code)) {
             sql.append(" AND p.code = :code ");
             params.put("code", code.trim().toUpperCase());
+        }
+
+        Query query = entityManager.createNativeQuery(sql.toString());
+        bindParams(query, params);
+        return ((Number) query.getSingleResult()).longValue();
+    }
+
+    @Override
+    public List<LeadReferenceOption> searchOrganizations(String q, int page, int size, String sortBy, String sortDir) {
+        String orderBy = switch (sortBy) {
+            case "id" -> "o.id";
+            case "createdAt" -> "o.created_at";
+            default -> "o.name";
+        };
+
+        StringBuilder sql = new StringBuilder("""
+                SELECT o.id, NULL AS code, o.name
+                FROM organizations o
+                WHERE 1 = 1
+                """);
+
+        Map<String, Object> params = new LinkedHashMap<>();
+
+        if (hasText(q)) {
+            sql.append(" AND o.name LIKE :q ");
+            params.put("q", "%" + q.trim() + "%");
+        }
+
+        sql.append(" ORDER BY ").append(orderBy).append(" ").append(normalizeSortDir(sortDir));
+
+        Query query = entityManager.createNativeQuery(sql.toString());
+        bindParams(query, params);
+        query.setFirstResult(page * size);
+        query.setMaxResults(size);
+
+        return mapOptions(query.getResultList());
+    }
+
+    @Override
+    public long countOrganizations(String q) {
+        StringBuilder sql = new StringBuilder("""
+                SELECT COUNT(*)
+                FROM organizations o
+                WHERE 1 = 1
+                """);
+
+        Map<String, Object> params = new LinkedHashMap<>();
+
+        if (hasText(q)) {
+            sql.append(" AND o.name LIKE :q ");
+            params.put("q", "%" + q.trim() + "%");
         }
 
         Query query = entityManager.createNativeQuery(sql.toString());

@@ -66,6 +66,8 @@ public class LeadController {
             @RequestParam(required = false) Integer provinceId,
             @RequestParam(required = false) Long organizationId,
             @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) Long statusId,
             @RequestParam(required = false) Long sourceId,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
@@ -76,6 +78,8 @@ public class LeadController {
                 .provinceId(provinceId)
                 .organizationId(organizationId)
                 .phone(phone)
+                .email(email)
+                .statusId(statusId)
                 .sourceId(sourceId)
                 .page(page)
                 .size(size)

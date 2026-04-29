@@ -32,4 +32,10 @@ public interface LeadReferenceService {
                                                                   Integer size,
                                                                   String sortBy,
                                                                   String sortDir);
+
+    LeadPageResponse<LeadReferenceOptionResponse> searchOrganizations(String q,
+                                                                      Integer page,
+                                                                      Integer size,
+                                                                      String sortBy,
+                                                                      String sortDir);
 }

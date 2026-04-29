@@ -15,4 +15,5 @@ public class LeadReferenceCatalogResponse {
 
     private List<LeadReferenceOptionResponse> statuses;
     private List<LeadReferenceOptionResponse> sources;
+    private List<LeadReferenceOptionResponse> campaigns;
 }

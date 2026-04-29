@@ -80,9 +80,9 @@ public class LeadRepositoryImpl implements LeadRepository {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Lead> search(Integer provinceId, Long organizationId, String phone, Long sourceId) {
+    public List<Lead> search(Integer provinceId, Long organizationId, String phone, String email, Long statusId, Long sourceId) {
         Specification<org.example.crm_project.modules.leads.infrastructure.persistence.entity.LeadEntity> specification =
-            buildSearchSpecification(provinceId, organizationId, phone, sourceId);
+            buildSearchSpecification(provinceId, organizationId, phone, email, statusId, sourceId);
 
         return jpaLeadRepository.findAll(specification).stream()
                 .map(entity -> LeadJpaMapper.toDomain(entity, loadProductInterestIds(entity.getId())))
@@ -95,6 +95,8 @@ public class LeadRepositoryImpl implements LeadRepository {
             Integer provinceId,
             Long organizationId,
             String phone,
+            String email,
+            Long statusId,
             Long sourceId,
             int page,
             int size,
@@ -102,7 +104,7 @@ public class LeadRepositoryImpl implements LeadRepository {
             String sortDir
         ) {
         Specification<org.example.crm_project.modules.leads.infrastructure.persistence.entity.LeadEntity> specification =
-            buildSearchSpecification(provinceId, organizationId, phone, sourceId);
+            buildSearchSpecification(provinceId, organizationId, phone, email, statusId, sourceId);
         Pageable pageable = buildPageable(page, size, sortBy, sortDir);
 
         Page<org.example.crm_project.modules.leads.infrastructure.persistence.entity.LeadEntity> resultPage =
@@ -202,6 +204,8 @@ public class LeadRepositoryImpl implements LeadRepository {
             Integer provinceId,
             Long organizationId,
             String phone,
+            String email,
+            Long statusId,
             Long sourceId
     ) {
         Specification<org.example.crm_project.modules.leads.infrastructure.persistence.entity.LeadEntity> specification =
@@ -219,9 +223,18 @@ public class LeadRepositoryImpl implements LeadRepository {
             specification = specification.and((root, query, cb) -> cb.equal(root.get("sourceId"), sourceId));
         }
 
+        if (statusId != null) {
+            specification = specification.and((root, query, cb) -> cb.equal(root.get("statusId"), statusId));
+        }
+
         if (StringUtils.hasText(phone)) {
             String normalizedPhone = "%" + phone.trim().toLowerCase() + "%";
             specification = specification.and((root, query, cb) -> cb.like(cb.lower(root.get("phone")), normalizedPhone));
+        }
+
+        if (StringUtils.hasText(email)) {
+            String normalizedEmail = "%" + email.trim().toLowerCase() + "%";
+            specification = specification.and((root, query, cb) -> cb.like(cb.lower(root.get("email")), normalizedEmail));
         }
 
         return specification;

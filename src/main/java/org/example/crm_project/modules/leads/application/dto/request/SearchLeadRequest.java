@@ -14,6 +14,8 @@ public class SearchLeadRequest {
     private Integer provinceId;
     private Long organizationId;
     private String phone;
+    private String email;
+    private Long statusId;
     private Long sourceId;
     private Integer page;
     private Integer size;

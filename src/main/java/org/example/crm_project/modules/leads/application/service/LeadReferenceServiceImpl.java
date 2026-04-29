@@ -26,18 +26,21 @@ public class LeadReferenceServiceImpl implements LeadReferenceService {
                 .sources(leadReferenceCatalogRepository.findLeadSources().stream()
                         .map(LeadReferenceMapper::toResponse)
                         .toList())
+                .campaigns(leadReferenceCatalogRepository.findLeadCampaigns().stream()
+                        .map(LeadReferenceMapper::toResponse)
+                        .toList())
                 .build();
     }
 
         @Override
         public LeadPageResponse<LeadReferenceOptionResponse> searchAssignees(String q,
-                                                                                                                                                 Long organizationId,
-                                                                                                                                                 Long roleId,
-                                                                                                                                                 String status,
-                                                                                                                                                 Integer page,
-                                                                                                                                                 Integer size,
-                                                                                                                                                 String sortBy,
-                                                                                                                                                 String sortDir) {
+                                                                             Long organizationId,
+                                                                             Long roleId,
+                                                                             String status,
+                                                                             Integer page,
+                                                                             Integer size,
+                                                                             String sortBy,
+                                                                             String sortDir) {
                 int safePage = normalizePage(page);
                 int safeSize = normalizeSize(size);
 
@@ -74,13 +77,13 @@ public class LeadReferenceServiceImpl implements LeadReferenceService {
 
         @Override
         public LeadPageResponse<LeadReferenceOptionResponse> searchProducts(String q,
-                                                                                                                                                String type,
-                                                                                                                                                Long categoryId,
-                                                                                                                                                Boolean isActive,
-                                                                                                                                                Integer page,
-                                                                                                                                                Integer size,
-                                                                                                                                                String sortBy,
-                                                                                                                                                String sortDir) {
+                                                                            String type,
+                                                                            Long categoryId,
+                                                                            Boolean isActive,
+                                                                            Integer page,
+                                                                            Integer size,
+                                                                            String sortBy,
+                                                                            String sortDir) {
                 int safePage = normalizePage(page);
                 int safeSize = normalizeSize(size);
 
@@ -122,11 +125,11 @@ public class LeadReferenceServiceImpl implements LeadReferenceService {
 
         @Override
         public LeadPageResponse<LeadReferenceOptionResponse> searchProvinces(String q,
-                                                                                                                                                 String code,
-                                                                                                                                                 Integer page,
-                                                                                                                                                 Integer size,
-                                                                                                                                                 String sortBy,
-                                                                                                                                                 String sortDir) {
+                                                                             String code,
+                                                                             Integer page,
+                                                                             Integer size,
+                                                                             String sortBy,
+                                                                             String sortDir) {
                 int safePage = normalizePage(page);
                 int safeSize = normalizeSize(size);
                 String safeSortBy = hasText(sortBy) ? sortBy.trim() : "name";
@@ -157,17 +160,52 @@ public class LeadReferenceServiceImpl implements LeadReferenceService {
                                 .build();
         }
 
+        @Override
+        public LeadPageResponse<LeadReferenceOptionResponse> searchOrganizations(String q,
+                                                                                 Integer page,
+                                                                                 Integer size,
+                                                                                 String sortBy,
+                                                                                 String sortDir) {
+                int safePage = normalizePage(page);
+                int safeSize = normalizeSize(size);
+                String safeSortBy = hasText(sortBy) ? sortBy.trim() : "name";
+                String safeSortDir = normalizeSortDir(sortDir);
+
+                var content = leadReferenceCatalogRepository.searchOrganizations(
+                                                trimToNull(q),
+                                                safePage,
+                                                safeSize,
+                                                safeSortBy,
+                                                safeSortDir)
+                                .stream()
+                                .map(LeadReferenceMapper::toResponse)
+                                .toList();
+
+                long totalElements = leadReferenceCatalogRepository.countOrganizations(trimToNull(q));
+                int totalPages = computeTotalPages(totalElements, safeSize);
+
+                return LeadPageResponse.<LeadReferenceOptionResponse>builder()
+                                .content(content)
+                                .page(safePage)
+                                .size(safeSize)
+                                .totalElements(totalElements)
+                                .totalPages(totalPages)
+                                .hasNext(safePage + 1 < totalPages)
+                                .hasPrevious(safePage > 0)
+                                .build();
+        }
+
         private int normalizePage(Integer page) {
                 return page == null || page < 0 ? 0 : page;
         }
 
         private int normalizeSize(Integer size) {
                 if (size == null) {
-                        return 20;
+                        return 100;
                 }
-                if (size < 1 || size > 100) {
-                        throw new InvalidLeadException("size must be between 1 and 100");
-                }
+//                if (size < 1 || size > 100) {
+//                        throw new InvalidLeadException("size must be between 1 and 100");
+//                }
                 return size;
         }
 
