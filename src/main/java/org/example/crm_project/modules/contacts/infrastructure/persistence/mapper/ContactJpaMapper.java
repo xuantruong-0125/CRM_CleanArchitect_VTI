@@ -9,7 +9,7 @@ public class ContactJpaMapper {
     public Contact toDomain(ContactEntity e) {
         Contact contact = new Contact();
         contact.setId(e.getId());
-        contact.setCustomerId(e.getCustomer().getId());
+        contact.setCustomerId(Long.valueOf(e.getCustomer().getId()));
         contact.setFullName(e.getFullName());
         contact.setPosition(e.getPosition());
         contact.setEmail(e.getEmail());

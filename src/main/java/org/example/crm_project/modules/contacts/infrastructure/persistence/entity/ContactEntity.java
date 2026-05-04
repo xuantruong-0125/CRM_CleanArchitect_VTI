@@ -2,6 +2,7 @@ package org.example.crm_project.modules.contacts.infrastructure.persistence.enti
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.crm_project.modules.quote_management.infrastructure.persistence.entity.CustomerEntity;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;

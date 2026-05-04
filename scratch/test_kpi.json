@@ -1,0 +1,21 @@
+{
+  "name": "Test KPI 2026",
+  "startDate": "2026-05-01",
+  "endDate": "2026-12-31",
+  "status": "ACTIVE",
+  "description": "Test KPI via AI Agent",
+  "createdBy": 1,
+  "targets": [
+    {
+      "metricType": "Doanh số",
+      "targetValue": 1000000
+    }
+  ],
+  "assignments": [
+    {
+      "userId": 1,
+      "organizationId": 1,
+      "commissionPercent": 5.0
+    }
+  ]
+}
