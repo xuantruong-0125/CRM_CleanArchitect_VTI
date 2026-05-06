@@ -26,7 +26,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryResponse create(CreateCategoryRequest req) {
         Category category = CategoryMapper.toEntity(req);
-        // set createdBy if available
+
         return CategoryMapper.toResponse(categoryRepository.save(category));
     }
 
