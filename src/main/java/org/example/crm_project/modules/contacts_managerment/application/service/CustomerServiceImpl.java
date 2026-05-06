@@ -57,6 +57,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CustomerResponse getById(Long id) {
         return customerRepository.findById(id)
                 .map(customerMapper::toResponse)

@@ -36,7 +36,7 @@ public class CustomerPersistenceMapper {
 
     public Customer toDomain(CustomerEntity entity) {
         if (entity == null) return null;
-        return new Customer(
+        Customer customer = new Customer(
                 entity.getId(),
                 entity.getParentId(),
                 entity.getCustomerCode(),
@@ -58,6 +58,35 @@ public class CustomerPersistenceMapper {
                 entity.getCreatedAt(),
                 entity.getUpdatedAt(),
                 entity.getDeletedAt()
+        );
+        
+        if (entity.getContacts() != null) {
+            customer.setContacts(entity.getContacts().stream()
+                .map(this::mapContactToDomain)
+                .collect(java.util.stream.Collectors.toList()));
+        }
+        
+        return customer;
+    }
+
+    private org.example.crm_project.modules.contacts_managerment.domain.entity.Contact mapContactToDomain(org.example.crm_project.modules.contacts_managerment.infrastructure.persistence.entity.ContactEntity entity) {
+        if (entity == null) return null;
+        return new org.example.crm_project.modules.contacts_managerment.domain.entity.Contact(
+            entity.getId(),
+            entity.getFullName(),
+            entity.getPosition(),
+            entity.getPhone(),
+            entity.getEmail(),
+            entity.getAddress(),
+            entity.getDob(),
+            entity.getNotes(),
+            entity.isPrimary(),
+            entity.getCreatedBy(),
+            entity.getUpdatedBy(),
+            entity.getCreatedAt(),
+            entity.getUpdatedAt(),
+            entity.isActive(),
+            entity.getDeletedAt()
         );
     }
 }

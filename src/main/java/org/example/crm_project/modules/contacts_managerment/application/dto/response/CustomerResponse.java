@@ -26,6 +26,7 @@ public class CustomerResponse {
     private Long statusId;
     private Long tierId;
     private Long assignedTo;
+    private java.util.List<ContactResponse> contacts;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

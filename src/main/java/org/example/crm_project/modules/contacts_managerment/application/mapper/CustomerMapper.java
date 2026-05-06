@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 
 @Component
+@lombok.RequiredArgsConstructor
 public class CustomerMapper {
+    private final ContactMapper contactMapper;
 
     public Customer toDomain(CreateCustomerRequest request) {
         if (request == null) return null;
@@ -72,6 +74,8 @@ public class CustomerMapper {
                 .statusId(customer.getStatusId())
                 .tierId(customer.getTierId())
                 .assignedTo(customer.getAssignedTo())
+                .contacts(customer.getContacts() != null ? 
+                        customer.getContacts().stream().map(contactMapper::toResponse).toList() : null)
                 .createdAt(customer.getCreatedAt())
                 .updatedAt(customer.getUpdatedAt())
                 .build();
