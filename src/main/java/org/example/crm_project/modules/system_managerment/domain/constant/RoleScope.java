@@ -6,5 +6,6 @@ public enum RoleScope {
     BRANCH,   // chi nhánh
     DEPARTMENT, // phòng ban
     TEAM,     // nhóm
-    OWN       // cá nhân
+    OWN,// cá nhân
+    NONE,
 }

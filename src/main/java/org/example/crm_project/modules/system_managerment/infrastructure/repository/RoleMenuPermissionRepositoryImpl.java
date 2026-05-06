@@ -49,4 +49,17 @@ public class RoleMenuPermissionRepositoryImpl implements RoleMenuPermissionRepos
     public void deleteByRoleId(Long roleId) {
         jpaRepository.deleteByIdRoleId(roleId);
     }
+
+    @Override
+    public List<RoleMenuPermission> saveAll(List<RoleMenuPermission> permissions) {
+
+        var entities = permissions.stream()
+                .map(RoleMenuPermissionJpaMapper::toEntity)
+                .toList();
+
+        return jpaRepository.saveAll(entities)
+                .stream()
+                .map(RoleMenuPermissionJpaMapper::toDomain)
+                .toList();
+    }
 }

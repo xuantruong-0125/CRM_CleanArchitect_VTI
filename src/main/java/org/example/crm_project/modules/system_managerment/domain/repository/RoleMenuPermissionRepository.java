@@ -16,4 +16,7 @@ public interface RoleMenuPermissionRepository {
     void deleteByRoleIdAndMenuId(Long roleId, Long menuId);
 
     void deleteByRoleId(Long roleId);
+
+    List<RoleMenuPermission> saveAll(List<RoleMenuPermission> permissions); // 👈 thêm dòng này
+
 }

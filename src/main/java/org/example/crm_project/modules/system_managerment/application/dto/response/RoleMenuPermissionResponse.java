@@ -9,6 +9,8 @@ public class RoleMenuPermissionResponse {
 
     private Long roleId;
     private Long menuId;
+    private String menuName;
+    private Long parentId;
 
     private boolean canView;
     private boolean canCreate;
