@@ -6,5 +6,4 @@ public enum TaskStatus {
     WAITING, 
     COMPLETED, 
     DEFERRED
-
 }

@@ -28,26 +28,27 @@ public class TaskJpaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     private String subject;
     private String description;
     private LocalDateTime startDate;
     private LocalDateTime dueDate;
     private LocalDateTime completedAt;
-    
+
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
-    
+
     @Enumerated(EnumType.STRING)
     private TaskPriority priority;
-    
+
     private Integer progressPercent;
+
     private String relatedToType;
     private Long relatedToId;
     private Long assignedTo;
     private Long assignedBy;
     private Long contactId;
-    
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
