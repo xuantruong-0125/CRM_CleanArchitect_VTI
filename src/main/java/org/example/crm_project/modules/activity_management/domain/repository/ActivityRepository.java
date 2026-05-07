@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.example.crm_project.modules.activity_management.application.dto.request.ActivitySearchCriteria;
 import org.example.crm_project.modules.activity_management.domain.entity.Activity;
 
-public interface ActivityRepository {
+public interface ActivityRepository  {
 
     Activity save(Activity activity);
 

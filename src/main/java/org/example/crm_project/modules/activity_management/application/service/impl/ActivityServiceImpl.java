@@ -13,7 +13,10 @@ import org.example.crm_project.modules.activity_management.domain.repository.Act
 import org.example.crm_project.modules.activity_management.domain.repository.ActivityUserProvider;
 import org.example.crm_project.modules.activity_management.domain.repository.PagedResult;
 import org.example.crm_project.modules.activity_management.domain.repository.Pagination;
-
+import org.example.crm_project.modules.note_management.Application.mapper.NoteMapper;
+import org.example.crm_project.modules.note_management.Domain.entity.Note;
+import org.example.crm_project.modules.note_management.Domain.repository.NoteRepository;
+import org.example.crm_project.modules.note_management.infrastructure.persistence.entity.NoteJpaEntity;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,22 +31,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ActivityServiceImpl implements ActivityService {
 
-     private final ActivityRepository repository;
+    private final ActivityRepository repository;
     private final ActivityUserProvider userProvider;
+    private final NoteRepository noteRepository;
 
     // 1. THÊM MỚI
     @CacheEvict(value = "activities", allEntries = true)
     @Transactional
     public ActivityResponse create(CreateActivityRequest request) {
-        // Chuyển từ Request -> Domain Entity
+        // A. Lưu Activity trước để lấy được ID (notable_id)
         Activity activity = ActivityMapper.toEntity(request);
-
-        // Lưu vào Database thông qua Repository
         Activity savedActivity = repository.save(activity);
 
-        // Lấy tên người thực hiện để trả về Response
-        String userName = userProvider.getUserFullNameById(savedActivity.getPerformedBy());
+        // B. XỬ LÝ GHI CHÚ (NOTE)
+        // Kiểm tra nếu Frontend có gửi nội dung ghi chú kèm theo
+        if (request.getNoteContent() != null && !request.getNoteContent().trim().isEmpty()) {
+            // Khởi tạo đối tượng Note thuần khiết
+            Note noteDomain = NoteMapper.toDomain(request, savedActivity.getId());
+            noteRepository.save(noteDomain);
+        }
 
+        // C. Trả về Response như cũ
+        String userName = userProvider.getUserFullNameById(savedActivity.getPerformedBy());
         return ActivityMapper.toResponse(savedActivity, userName);
     }
 
@@ -60,11 +69,11 @@ public class ActivityServiceImpl implements ActivityService {
                 request.getSubject(),
                 request.getDescription(),
                 request.getStatus(),
-                request.getStartDate(),     // Bổ sung
-                request.getEndDate(),       // Bổ sung
-                request.getCompletedAt(),   // Bổ sung
-                request.getOutcome(),       // Bổ sung
-                request.getIsImportant()    // Bổ sung
+                request.getStartDate(), // Bổ sung
+                request.getEndDate(), // Bổ sung
+                request.getCompletedAt(), // Bổ sung
+                request.getOutcome(), // Bổ sung
+                request.getIsImportant() // Bổ sung
         );
 
         Activity updatedActivity = repository.save(existingActivity);
@@ -146,28 +155,31 @@ public class ActivityServiceImpl implements ActivityService {
 
     // @Override
     // @Transactional
-    // @CacheEvict(value = "activities", allEntries = true) // Xóa cache để trang danh sách cập nhật data mới
+    // @CacheEvict(value = "activities", allEntries = true) // Xóa cache để trang
+    // danh sách cập nhật data mới
     // public ActivityResponse update(Long id, UpdateActivityRequest request) {
-    //     // 1. Tìm bản ghi cũ trong DB
-    //     Activity existingActivity = repository.findById(id)
-    //             .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy hoạt động để cập nhật: " + id));
+    // // 1. Tìm bản ghi cũ trong DB
+    // Activity existingActivity = repository.findById(id)
+    // .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy hoạt động để
+    // cập nhật: " + id));
 
-    //     // 2. Cập nhật thông tin (Duy gọi hàm updateInfo trong Entity)
-    //     existingActivity.updateInfo(
-    //             request.getSubject(),
-    //             request.getDescription(),
-    //             request.getStatus(),
-    //             request.getActivityType()
-    //             // Thêm các trường khác nếu cần như startDate, endDate...
-    //     );
+    // // 2. Cập nhật thông tin (Duy gọi hàm updateInfo trong Entity)
+    // existingActivity.updateInfo(
+    // request.getSubject(),
+    // request.getDescription(),
+    // request.getStatus(),
+    // request.getActivityType()
+    // // Thêm các trường khác nếu cần như startDate, endDate...
+    // );
 
-    //     // 3. Lưu vào MySQL
-    //     Activity updatedActivity = repository.save(existingActivity);
+    // // 3. Lưu vào MySQL
+    // Activity updatedActivity = repository.save(existingActivity);
 
-    //     // 4. Lấy tên người dùng (từ Redis/UserModule) để đóng gói trả về
-    //     String userName = userProvider.getUserFullNameById(updatedActivity.getPerformedBy());
+    // // 4. Lấy tên người dùng (từ Redis/UserModule) để đóng gói trả về
+    // String userName =
+    // userProvider.getUserFullNameById(updatedActivity.getPerformedBy());
 
-    //     return ActivityMapper.toResponse(updatedActivity, userName);
+    // return ActivityMapper.toResponse(updatedActivity, userName);
     // }
-    
+
 }

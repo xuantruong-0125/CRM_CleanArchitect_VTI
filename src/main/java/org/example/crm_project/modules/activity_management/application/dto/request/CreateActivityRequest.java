@@ -27,4 +27,7 @@ public class CreateActivityRequest {
     private LocalDateTime startDate;
     
     private LocalDateTime endDate;
+
+
+    private String noteContent;
 }

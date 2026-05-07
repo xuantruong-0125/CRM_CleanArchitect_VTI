@@ -1,10 +1,10 @@
 package org.example.crm_project.modules.activity_management.domain.entity;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import org.example.crm_project.modules.activity_management.domain.constant.ActivityStatus;
 import org.example.crm_project.modules.activity_management.domain.constant.ActivityType;
+
 
 public class Activity  {
 
