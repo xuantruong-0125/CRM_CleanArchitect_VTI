@@ -15,5 +15,6 @@ public interface NoteService {
 
 
     NoteResponse createNote(CreateNoteRequest request);
+    List<NoteResponse> getNotesByTaskId(Long taskId);
 
 }

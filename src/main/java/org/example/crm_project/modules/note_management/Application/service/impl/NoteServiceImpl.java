@@ -63,5 +63,15 @@ public class NoteServiceImpl implements NoteService {
                 "Tên Người Tạo", // Chỗ này sau này ghép UserProvider vào để lấy tên thật
                 java.time.LocalDateTime.now());
     }
+    @Override
+    public List<NoteResponse> getNotesByTaskId(Long taskId) {
+        // Gọi Domain Repo với Type là "TASK" và ID của Task
+        List<Note> notes = noteRepository.findByNotableTypeAndNotableId("TASK", taskId);
+        
+        // Map sang DTO để trả về
+        return notes.stream()
+                .map(note -> NoteMapper.toResponse(note, "Tên Người Tạo")) 
+                .collect(Collectors.toList());
+    }
 
 }

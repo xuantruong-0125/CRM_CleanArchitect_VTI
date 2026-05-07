@@ -40,6 +40,11 @@ public class NoteController {
         NoteResponse response = noteService.createNote(request);
         return ResponseEntity.ok(response);
     }
+    // API lấy danh sách ghi chú của Task
+    @GetMapping("/task/{id}")
+    public ResponseEntity<List<NoteResponse>> getNotesByTask(@PathVariable Long id) {
+        return ResponseEntity.ok(noteService.getNotesByTaskId(id));
+    }
 
 
 }
