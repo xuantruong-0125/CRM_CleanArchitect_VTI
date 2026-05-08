@@ -92,9 +92,6 @@ public class UserService {
     @Transactional
     public UserResponse update(Long id, UpdateUserRequest req) {
 
-        if (req.getEmail() != null && repository.existsByEmail(req.getEmail())) {
-            throw new EmailAlreadyExistsException(req.getEmail());
-        }
 
         User user = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
