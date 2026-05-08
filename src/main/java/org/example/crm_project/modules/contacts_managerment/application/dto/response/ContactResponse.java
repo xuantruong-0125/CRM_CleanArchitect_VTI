@@ -1,5 +1,6 @@
 package org.example.crm_project.modules.contacts_managerment.application.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 import java.time.LocalDate;
@@ -15,7 +16,9 @@ public class ContactResponse {
     private String address;
     private LocalDate dob;
     private String notes;
+    @JsonProperty("isPrimary")
     private boolean isPrimary;
+    @JsonProperty("isActive")
     private boolean isActive;
     private Long customerId;
     private String customerName;

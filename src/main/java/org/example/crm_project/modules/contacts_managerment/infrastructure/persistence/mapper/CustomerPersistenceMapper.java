@@ -1,8 +1,12 @@
 package org.example.crm_project.modules.contacts_managerment.infrastructure.persistence.mapper;
 
+import org.example.crm_project.modules.contacts_managerment.domain.entity.Contact;
 import org.example.crm_project.modules.contacts_managerment.domain.entity.Customer;
+import org.example.crm_project.modules.contacts_managerment.infrastructure.persistence.entity.ContactEntity;
 import org.example.crm_project.modules.contacts_managerment.infrastructure.persistence.entity.CustomerEntity;
 import org.springframework.stereotype.Component;
+
+import static java.util.stream.Collectors.toList;
 
 @Component
 public class CustomerPersistenceMapper {
@@ -63,15 +67,15 @@ public class CustomerPersistenceMapper {
         if (entity.getContacts() != null) {
             customer.setContacts(entity.getContacts().stream()
                 .map(this::mapContactToDomain)
-                .collect(java.util.stream.Collectors.toList()));
+                .collect(toList()));
         }
         
         return customer;
     }
 
-    private org.example.crm_project.modules.contacts_managerment.domain.entity.Contact mapContactToDomain(org.example.crm_project.modules.contacts_managerment.infrastructure.persistence.entity.ContactEntity entity) {
+    private Contact mapContactToDomain(ContactEntity entity) {
         if (entity == null) return null;
-        return new org.example.crm_project.modules.contacts_managerment.domain.entity.Contact(
+        return new Contact(
             entity.getId(),
             entity.getFullName(),
             entity.getPosition(),
