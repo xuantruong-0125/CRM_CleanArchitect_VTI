@@ -1,6 +1,10 @@
 package org.example.crm_project.modules.task_managerment.presentation.controller;
 
+import java.util.List;
+
 import org.example.crm_project.modules.task_managerment.application.dto.request.CreateTaskRequest;
+import org.example.crm_project.modules.task_managerment.application.dto.request.UpdateTaskRequest;
+import org.example.crm_project.modules.task_managerment.application.dto.response.TaskHistoryResponse;
 import org.example.crm_project.modules.task_managerment.application.dto.response.TaskResponse;
 import org.example.crm_project.modules.task_managerment.application.service.TaskService;
 
@@ -9,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -67,5 +72,23 @@ public class TaskController {
 
         // Trả về HTTP Status 201 (Created)
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<TaskResponse> updateTask(
+            @PathVariable Long id,
+            @RequestBody UpdateTaskRequest request) {
+
+        // Gọi Service xử lý
+        TaskResponse response = taskService.updateTask(id, request);
+
+        // Trả về dữ liệu mới nhất cho Frontend cập nhật UI
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/histories")
+    public ResponseEntity<List<TaskHistoryResponse>> getTaskHistories(@PathVariable Long id) {
+        List<TaskHistoryResponse> histories = taskService.getTaskHistories(id);
+        return ResponseEntity.ok(histories);
     }
 }
