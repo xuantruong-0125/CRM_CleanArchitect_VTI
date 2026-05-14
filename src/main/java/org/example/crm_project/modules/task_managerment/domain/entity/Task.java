@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import org.example.crm_project.modules.task_managerment.domain.constant.TaskPriority;
 import org.example.crm_project.modules.task_managerment.domain.constant.TaskStatus;
 
+import lombok.Setter;
+@Setter
 public class Task {
     private Long id;
     private String subject;
