@@ -1,5 +1,6 @@
 package org.example.crm_project.modules.leads.infrastructure.persistence.repository;
 
+import org.example.crm_project.modules.leads.domain.entity.LeadActivityStatistics;
 import org.example.crm_project.modules.leads.infrastructure.persistence.entity.LeadActivityEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,15 +15,16 @@ public interface JpaLeadActivityRepository extends JpaRepository<LeadActivityEnt
   java.util.Optional<LeadActivityEntity> findByIdAndRelatedToTypeAndRelatedToIdAndDeletedAtIsNull(Long id, String relatedToType, Long relatedToId);
 
     @Query("""
-            select
-                sum(case when a.activityType = 2 then 1 else 0 end),
-                sum(case when a.activityType = 3 then 1 else 0 end),
-                sum(case when a.activityType = 1 then 1 else 0 end),
-                count(a)
+      select new org.example.crm_project.modules.leads.domain.entity.LeadActivityStatistics(
+        coalesce(sum(case when a.activityType = 2 then 1 else 0 end), 0),
+        coalesce(sum(case when a.activityType = 3 then 1 else 0 end), 0),
+        coalesce(sum(case when a.activityType = 1 then 1 else 0 end), 0),
+        count(a)
+      )
             from LeadActivityEntity a
             where a.relatedToType = 'LEAD'
               and a.relatedToId = :leadId
               and a.deletedAt is null
             """)
-    Object[] getActivityStatistics(@Param("leadId") Long leadId);
+  LeadActivityStatistics getActivityStatistics(@Param("leadId") Long leadId);
 }

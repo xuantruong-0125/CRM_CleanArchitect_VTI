@@ -48,25 +48,6 @@ public class LeadActivityRepositoryImpl implements LeadActivityRepository {
     @Override
     @Transactional(readOnly = true)
     public LeadActivityStatistics getStatisticsByLeadId(Long leadId) {
-        Object[] row = jpaLeadActivityRepository.getActivityStatistics(leadId);
-
-        long callCount = toLong(row[0]);
-        long meetingCount = toLong(row[1]);
-        long emailCount = toLong(row[2]);
-        long totalCount = toLong(row[3]);
-
-        return LeadActivityStatistics.builder()
-                .callCount(callCount)
-                .meetingCount(meetingCount)
-                .emailCount(emailCount)
-                .totalCount(totalCount)
-                .build();
-    }
-
-    private long toLong(Object value) {
-        if (value == null) {
-            return 0L;
-        }
-        return ((Number) value).longValue();
+        return jpaLeadActivityRepository.getActivityStatistics(leadId);
     }
 }
