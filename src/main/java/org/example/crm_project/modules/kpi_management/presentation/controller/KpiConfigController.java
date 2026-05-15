@@ -6,8 +6,11 @@ import org.example.crm_project.modules.kpi_management.application.dto.request.Up
 import org.example.crm_project.modules.kpi_management.application.dto.response.KpiConfigResponse;
 import org.example.crm_project.modules.kpi_management.application.dto.response.PaginatedResponse;
 import org.example.crm_project.modules.kpi_management.application.interfaces.KpiConfigService;
+import org.example.crm_project.modules.kpi_management.domain.entity.KpiConfig;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -15,6 +18,14 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class KpiConfigController {
     private final KpiConfigService kpiConfigService;
+    private final org.example.crm_project.modules.kpi_management.application.usecase.GetMyKpiConfigsUseCase getMyKpiConfigsUseCase;
+
+    @GetMapping("/my-assignments")
+    public ResponseEntity<List<KpiConfig>> getMyAssignments(
+            @RequestParam Integer userId,
+            @RequestParam Integer organizationId) {
+        return ResponseEntity.ok(getMyKpiConfigsUseCase.execute(userId, organizationId));
+    }
 
     @GetMapping
     public ResponseEntity<PaginatedResponse<KpiConfigResponse>> findAll(

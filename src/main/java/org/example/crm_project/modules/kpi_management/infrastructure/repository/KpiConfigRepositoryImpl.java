@@ -10,7 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -45,6 +48,16 @@ public class KpiConfigRepositoryImpl implements KpiConfigRepository {
 
     @Override
     public void delete(KpiConfig kpiConfig) {
-        jpaRepository.save(mapper.toEntity(kpiConfig));
+        jpaRepository.findById(kpiConfig.getId()).ifPresent(entity -> {
+            entity.setDeletedAt(LocalDateTime.now());
+            jpaRepository.save(entity);
+        });
+    }
+
+    @Override
+    public List<KpiConfig> findAssignedConfigs(Integer userId, Integer organizationId) {
+        return jpaRepository.findAssignedConfigs(userId, organizationId).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 }

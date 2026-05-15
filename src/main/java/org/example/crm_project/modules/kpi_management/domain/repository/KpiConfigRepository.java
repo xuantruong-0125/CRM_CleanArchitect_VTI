@@ -11,4 +11,5 @@ public interface KpiConfigRepository {
     Optional<KpiConfig> findById(Integer id);
     KpiConfig save(KpiConfig kpiConfig);
     void delete(KpiConfig kpiConfig);
+    java.util.List<org.example.crm_project.modules.kpi_management.domain.entity.KpiConfig> findAssignedConfigs(Integer userId, Integer organizationId);
 }
