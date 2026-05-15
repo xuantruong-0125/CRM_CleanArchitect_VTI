@@ -6,6 +6,7 @@ import org.example.crm_project.modules.contacts_managerment.domain.entity.Custom
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -26,7 +27,7 @@ public class CustomerResponse {
     private Long statusId;
     private Long tierId;
     private Long assignedTo;
-    private java.util.List<ContactResponse> contacts;
+    private List<ContactResponse> contacts;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
