@@ -13,6 +13,6 @@ import java.util.List;
 @Repository
 public interface JpaProductRepository extends JpaRepository<ProductEntity, Integer> {
 
-    @Query("SELECT p FROM ProductEntity p WHERE p.isActive = true AND p.deletedAt IS NULL ORDER BY p.name ASC")
+    @Query("SELECT p FROM QuoteProductEntity p WHERE p.isActive = true AND p.deletedAt IS NULL ORDER BY p.name ASC")
     List<ProductEntity> findAllActive();
 }

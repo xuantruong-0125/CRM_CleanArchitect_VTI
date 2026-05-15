@@ -1,5 +1,7 @@
 package org.example.crm_project.modules.contacts_managerment.application.mapper;
 
+import org.example.crm_project.modules.customers.domain.entity.Customer;
+
 import org.example.crm_project.modules.contacts_managerment.application.dto.request.CreateContactRequest;
 import org.example.crm_project.modules.contacts_managerment.application.dto.request.UpdateContactRequest;
 import org.example.crm_project.modules.contacts_managerment.application.dto.response.ContactResponse;
@@ -12,7 +14,8 @@ import java.time.LocalDateTime;
 public class ContactMapper {
 
     public Contact toEntity(CreateContactRequest request) {
-        if (request == null) return null;
+        if (request == null)
+            return null;
         Contact contact = new Contact();
         contact.setFullName(request.getFullName());
         contact.setPosition(request.getPosition());
@@ -28,21 +31,30 @@ public class ContactMapper {
     }
 
     public void updateEntity(Contact contact, UpdateContactRequest request) {
-        if (request == null) return;
-        if (request.getFullName() != null) contact.setFullName(request.getFullName());
-        if (request.getPosition() != null) contact.setPosition(request.getPosition());
-        if (request.getPhone() != null) contact.setPhone(request.getPhone());
-        if (request.getEmail() != null) contact.setEmail(request.getEmail());
-        if (request.getAddress() != null) contact.setAddress(request.getAddress());
-        if (request.getDob() != null) contact.setDob(request.getDob());
-        if (request.getNotes() != null) contact.setNotes(request.getNotes());
+        if (request == null)
+            return;
+        if (request.getFullName() != null)
+            contact.setFullName(request.getFullName());
+        if (request.getPosition() != null)
+            contact.setPosition(request.getPosition());
+        if (request.getPhone() != null)
+            contact.setPhone(request.getPhone());
+        if (request.getEmail() != null)
+            contact.setEmail(request.getEmail());
+        if (request.getAddress() != null)
+            contact.setAddress(request.getAddress());
+        if (request.getDob() != null)
+            contact.setDob(request.getDob());
+        if (request.getNotes() != null)
+            contact.setNotes(request.getNotes());
         contact.setPrimary(request.isPrimary());
         contact.setActive(request.isActive());
         contact.setUpdatedAt(LocalDateTime.now());
     }
 
     public ContactResponse toResponse(Contact contact) {
-        if (contact == null) return null;
+        if (contact == null)
+            return null;
         ContactResponse.ContactResponseBuilder builder = ContactResponse.builder()
                 .id(contact.getId())
                 .fullName(contact.getFullName())

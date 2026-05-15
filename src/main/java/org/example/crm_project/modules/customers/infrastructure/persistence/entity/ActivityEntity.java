@@ -22,7 +22,7 @@ public class ActivityEntity implements Serializable {
     private Long id;
 
     @Column(name = "activity_type")
-    private Integer activityType;
+    private Byte activityType;
 
     @Column(name = "subject", length = 255)
     private String subject;
@@ -64,7 +64,7 @@ public class ActivityEntity implements Serializable {
     private LocalDateTime updatedAt;
 
     @Column(name = "status")
-    private Integer status;
+    private Byte status;
 
     @Column(name = "is_important")
     private Boolean isImportant;
@@ -81,11 +81,11 @@ public class ActivityEntity implements Serializable {
         this.id = id;
     }
 
-    public Integer getActivityType() {
+    public Byte getActivityType() {
         return activityType;
     }
 
-    public void setActivityType(Integer activityType) {
+    public void setActivityType(Byte activityType) {
         this.activityType = activityType;
     }
 
@@ -193,11 +193,11 @@ public class ActivityEntity implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-    public Integer getStatus() {
+    public Byte getStatus() {
         return status;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(Byte status) {
         this.status = status;
     }
 

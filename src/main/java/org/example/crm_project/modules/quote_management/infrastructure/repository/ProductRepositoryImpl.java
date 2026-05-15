@@ -13,7 +13,7 @@ import java.util.Optional;
 /**
  * Implementation của ProductRepository (domain interface).
  */
-@Repository
+@Repository("quoteProductRepositoryImpl")
 @RequiredArgsConstructor
 public class ProductRepositoryImpl implements ProductRepository {
 

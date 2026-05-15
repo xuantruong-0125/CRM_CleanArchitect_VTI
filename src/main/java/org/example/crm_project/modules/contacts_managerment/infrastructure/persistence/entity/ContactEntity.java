@@ -1,5 +1,7 @@
 package org.example.crm_project.modules.contacts_managerment.infrastructure.persistence.entity;
 
+import org.example.crm_project.modules.customers.infrastructure.persistence.entity.CustomerEntity;
+
 import jakarta.persistence.*;
 import lombok.*;
 

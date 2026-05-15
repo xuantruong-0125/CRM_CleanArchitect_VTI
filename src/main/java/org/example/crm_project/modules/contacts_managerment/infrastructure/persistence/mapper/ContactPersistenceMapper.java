@@ -2,20 +2,17 @@ package org.example.crm_project.modules.contacts_managerment.infrastructure.pers
 
 import org.example.crm_project.modules.contacts_managerment.domain.entity.Contact;
 import org.example.crm_project.modules.contacts_managerment.infrastructure.persistence.entity.ContactEntity;
+import org.example.crm_project.modules.customers.domain.entity.Customer;
+import org.example.crm_project.modules.customers.infrastructure.persistence.entity.CustomerEntity;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ContactPersistenceMapper {
 
-    private final CustomerPersistenceMapper customerPersistenceMapper;
-
-    public ContactPersistenceMapper(CustomerPersistenceMapper customerPersistenceMapper) {
-        this.customerPersistenceMapper = customerPersistenceMapper;
-    }
-
     public ContactEntity toEntity(Contact contact) {
-        if (contact == null) return null;
-        return ContactEntity.builder()
+        if (contact == null)
+            return null;
+        ContactEntity contactEntity = ContactEntity.builder()
                 .id(contact.getId())
                 .fullName(contact.getFullName())
                 .position(contact.getPosition())
@@ -31,12 +28,18 @@ public class ContactPersistenceMapper {
                 .updatedAt(contact.getUpdatedAt())
                 .isActive(contact.isActive())
                 .deletedAt(contact.getDeletedAt())
-                .customer(customerPersistenceMapper.toEntity(contact.getCustomer()))
                 .build();
+
+        if (contact.getCustomer() != null) {
+            contactEntity.setCustomer(mapCustomerToEntity(contact.getCustomer()));
+        }
+
+        return contactEntity;
     }
 
     public Contact toDomain(ContactEntity entity) {
-        if (entity == null) return null;
+        if (entity == null)
+            return null;
         Contact contact = new Contact(
                 entity.getId(),
                 entity.getFullName(),
@@ -52,9 +55,31 @@ public class ContactPersistenceMapper {
                 entity.getCreatedAt(),
                 entity.getUpdatedAt(),
                 entity.isActive(),
-                entity.getDeletedAt()
-        );
-        contact.setCustomer(customerPersistenceMapper.toDomain(entity.getCustomer()));
+                entity.getDeletedAt());
+        if (entity.getCustomer() != null) {
+            contact.setCustomer(mapCustomerToDomain(entity.getCustomer()));
+        }
         return contact;
+    }
+
+    private CustomerEntity mapCustomerToEntity(Customer customer) {
+        if (customer == null)
+            return null;
+        CustomerEntity entity = new CustomerEntity();
+        entity.setId(customer.getId());
+        entity.setName(customer.getName());
+        // Map other fields if necessary, but usually ID is enough for relationships in
+        // JPA
+        return entity;
+    }
+
+    private Customer mapCustomerToDomain(CustomerEntity entity) {
+        if (entity == null)
+            return null;
+        Customer customer = new Customer();
+        customer.setId(entity.getId());
+        customer.setName(entity.getName());
+        // Map other fields if necessary
+        return customer;
     }
 }

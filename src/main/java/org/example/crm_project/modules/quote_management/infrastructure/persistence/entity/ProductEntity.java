@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 /**
  * JPA Entity cho bảng products (read-only reference trong module báo giá).
  */
-@Entity
+@Entity(name = "QuoteProductEntity")
 @Table(name = "products")
 @Getter
 @Setter

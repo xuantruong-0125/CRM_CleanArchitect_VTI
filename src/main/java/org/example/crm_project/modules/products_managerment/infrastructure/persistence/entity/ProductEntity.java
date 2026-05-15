@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
-@Entity
+@Entity(name = "ProductsProductEntity")
 @Table(name = "products")
 public class ProductEntity {
     @Id

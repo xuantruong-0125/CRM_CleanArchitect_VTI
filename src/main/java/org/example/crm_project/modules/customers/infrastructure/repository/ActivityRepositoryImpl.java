@@ -115,7 +115,7 @@ public class ActivityRepositoryImpl implements ActivityRepository {
         activity.setUpdatedBy(entity.getUpdatedBy());
         activity.setCreatedAt(entity.getCreatedAt());
         activity.setUpdatedAt(entity.getUpdatedAt());
-        activity.setStatus(entity.getStatus());
+        //activity.setStatus(entity.getStatus());
         activity.setIsImportant(entity.getIsImportant());
         activity.setDeletedAt(entity.getDeletedAt());
 
@@ -127,7 +127,7 @@ public class ActivityRepositoryImpl implements ActivityRepository {
 
         ActivityEntity entity = new ActivityEntity();
         entity.setId(activity.getId());
-        entity.setActivityType(activity.getActivityType() != null ? activity.getActivityType().getCode() : null);
+        //entity.setActivityType(activity.getActivityType() != null ? activity.getActivityType().getCode() : null);
         entity.setSubject(activity.getSubject());
         entity.setDescription(activity.getDescription());
         entity.setStartDate(activity.getStartDate());
@@ -141,7 +141,7 @@ public class ActivityRepositoryImpl implements ActivityRepository {
         entity.setUpdatedBy(activity.getUpdatedBy());
         entity.setCreatedAt(activity.getCreatedAt());
         entity.setUpdatedAt(activity.getUpdatedAt());
-        entity.setStatus(activity.getStatus());
+        //entity.setStatus(activity.getStatus());
         entity.setIsImportant(activity.getIsImportant());
         entity.setDeletedAt(activity.getDeletedAt());
 

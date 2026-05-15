@@ -4,6 +4,8 @@ import org.example.crm_project.modules.customers.domain.constant.CustomerStatus;
 import org.example.crm_project.modules.customers.domain.constant.CustomerTier;
 import org.example.crm_project.modules.customers.domain.constant.CustomerType;
 
+import org.example.crm_project.modules.contacts_managerment.domain.entity.Contact;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
