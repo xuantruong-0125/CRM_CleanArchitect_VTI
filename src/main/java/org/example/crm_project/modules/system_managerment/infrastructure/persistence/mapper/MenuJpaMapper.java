@@ -15,11 +15,14 @@ public class MenuJpaMapper {
     }
 
     public static Menu toDomain(MenuEntity e) {
-
+        String code = e.getCode();
+        if (code == null || code.trim().isEmpty()) {
+            code = "LEGACY_MENU_" + e.getId();
+        }
         return new Menu(
                 e.getId(),
                 e.getName(),
-                e.getCode(),
+                code,
                 e.getParentId()
         );
     }

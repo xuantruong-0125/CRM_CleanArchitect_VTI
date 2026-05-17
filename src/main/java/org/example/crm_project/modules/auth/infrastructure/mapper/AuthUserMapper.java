@@ -25,6 +25,9 @@ public class AuthUserMapper {
                     Set<String> perms = new HashSet<>();
 
                     String menu = row.getMenuCode();
+                    if (menu == null || menu.trim().isEmpty()) {
+                        return perms.stream();
+                    }
 
                     if (Boolean.TRUE.equals(row.getCanView())) {
                         perms.add(menu + "_VIEW");
