@@ -11,11 +11,12 @@ public class AuthUser {
     private boolean active;
     private Set<String> roles;
     private Set<String> permissions;
+    private String scope;
 
 
     public AuthUser(Long id, String username, String fullname, String password,
                     boolean active,
-                    Set<String> roles, Set<String> permissions) {
+                    Set<String> roles, Set<String> permissions, String scope) {
         this.id = id;
         this.username = username;
         this.fullname = fullname;
@@ -23,6 +24,7 @@ public class AuthUser {
         this.active = active;
         this.roles = roles;
         this.permissions = permissions;
+        this.scope = scope;
     }
 
     public Long getId() { return id; }
@@ -33,5 +35,9 @@ public class AuthUser {
     public Set<String> getPermissions() { return permissions; }
     public String getFullname() {
         return fullname;
+    }
+
+    public String getScope() {
+        return scope;
     }
 }

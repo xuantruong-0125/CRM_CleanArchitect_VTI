@@ -9,14 +9,16 @@ public class LoginResponse {
     private String username;
     private Set<String> roles;
     private String fullName;
+    private String scope;
 
     public LoginResponse(String accessToken, String refreshToken,
-                         String username, String fullName, Set<String> roles) {
+                         String username, String fullName, Set<String> roles, String scope) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.username = username;
         this.roles = roles;
         this.fullName = fullName;
+        this.scope = scope;
     }
 
     public String getAccessToken() {
@@ -37,5 +39,9 @@ public class LoginResponse {
 
     public String getFullName() {
         return fullName;
+    }
+
+    public String getScope() {
+        return scope;
     }
 }
