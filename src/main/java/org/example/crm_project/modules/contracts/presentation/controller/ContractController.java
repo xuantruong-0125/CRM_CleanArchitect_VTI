@@ -19,7 +19,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1/contracts")
+@RequestMapping("/api/contracts")
 @RequiredArgsConstructor
 @Tag(name = "Contracts", description = "API Quản lý Hợp Đồng - Module 11")
 public class ContractController {
