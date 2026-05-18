@@ -18,6 +18,7 @@ public interface UserAuthQueryRepository extends Repository<UserEntity, Long> {
             u.status as status,
             r.id as roleId,
             r.name as roleName,
+            r.scope as scope,
             m.code as menuCode,
             rmp.can_view,
             rmp.can_create,

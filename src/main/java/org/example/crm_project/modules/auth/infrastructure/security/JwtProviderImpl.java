@@ -31,6 +31,7 @@ public class JwtProviderImpl implements TokenProvider {
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .claim("roles", user.getRoles())
+                .claim("scope", user.getScope())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getKey())

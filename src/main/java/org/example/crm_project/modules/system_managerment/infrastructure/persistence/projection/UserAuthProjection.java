@@ -9,7 +9,7 @@ public interface UserAuthProjection {
     String getStatus();
 
     String getRoleName();
-
+    String getScope();
     String getMenuCode();
 
     Boolean getCanView();

@@ -29,16 +29,31 @@ public class GlobalExceptionHandler {
             InvalidPermissionException.class,
             IllegalArgumentException.class
     })
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleBadRequest(Exception ex) {
-        return ex.getMessage();
+    public ResponseEntity<?> handleBadRequest(Exception ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", HttpStatus.BAD_REQUEST.value(),
+                        "error", "Bad Request",
+                        "message", ex.getMessage()
+                ));
     }
 
-    // ===== INTERNAL ERROR =====
+    // ===== INTERNAL ERROR & AUTH ERROR =====
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public String handleOther(Exception ex) {
-        return "Internal error: " + ex.getMessage();
+    public ResponseEntity<?> handleOther(Exception ex) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        if (ex.getClass().getSimpleName().equals("InvalidCredentialsException") || ex.getClass().getSimpleName().equals("UserNotFoundException")) {
+            status = HttpStatus.UNAUTHORIZED;
+        }
+        
+        return ResponseEntity.status(status)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", status.value(),
+                        "error", status.getReasonPhrase(),
+                        "message", ex.getMessage() != null ? ex.getMessage() : "Internal Server Error"
+                ));
     }
 
 
