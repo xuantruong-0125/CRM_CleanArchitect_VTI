@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.example.crm_project.modules.auth.domain.entity.AuthUser;
 import org.example.crm_project.modules.system_managerment.application.service.UserService;
 import org.example.crm_project.modules.task_managerment.application.dto.request.CreateTaskRequest;
 import org.example.crm_project.modules.task_managerment.application.dto.request.UpdateTaskRequest;
@@ -175,7 +176,9 @@ public class TaskServiceImpl implements TaskService {
         // 5. Lưu xuống Database
         Task savedTask = taskRepository.save(task);
 
-        Long currentUserId = 1L;
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        AuthUser currentUser = (AuthUser) auth.getPrincipal();
+        Long currentUserId = currentUser.getId();
 
         if (oldStatus != savedTask.getStatus()) {
             eventPublisher.publishEvent(new TaskUpdatedEvent(

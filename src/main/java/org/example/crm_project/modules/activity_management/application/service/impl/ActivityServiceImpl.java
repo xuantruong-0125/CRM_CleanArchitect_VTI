@@ -13,6 +13,7 @@ import org.example.crm_project.modules.activity_management.domain.repository.Act
 import org.example.crm_project.modules.activity_management.domain.repository.ActivityUserProvider;
 import org.example.crm_project.modules.activity_management.domain.repository.PagedResult;
 import org.example.crm_project.modules.activity_management.domain.repository.Pagination;
+import org.example.crm_project.modules.auth.domain.entity.AuthUser;
 import org.example.crm_project.modules.note_management.Application.mapper.NoteMapper;
 import org.example.crm_project.modules.note_management.Domain.entity.Note;
 import org.example.crm_project.modules.note_management.Domain.repository.NoteRepository;
@@ -39,8 +40,16 @@ public class ActivityServiceImpl implements ActivityService {
     @CacheEvict(value = "activities", allEntries = true)
     @Transactional
     public ActivityResponse create(CreateActivityRequest request) {
+
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        AuthUser currentUser = (AuthUser) auth.getPrincipal();
+        Long currentUserId = currentUser.getId();
+
         // A. Lưu Activity trước để lấy được ID (notable_id)
         Activity activity = ActivityMapper.toEntity(request);
+
+        
+        activity.setPerformedBy(currentUserId);
         Activity savedActivity = repository.save(activity);
 
         // B. XỬ LÝ GHI CHÚ (NOTE)

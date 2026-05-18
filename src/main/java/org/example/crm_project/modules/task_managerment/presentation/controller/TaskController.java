@@ -11,6 +11,7 @@ import org.example.crm_project.modules.task_managerment.application.service.Task
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -31,6 +32,7 @@ public class TaskController {
     private final TaskService taskService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('TASK_VIEW')")
     public ResponseEntity<Page<TaskResponse>> getAllTasks(
             @RequestParam(required = false) String subject,
             @RequestParam(required = false) String status,
@@ -42,6 +44,7 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('TASK_VIEW')")
     public ResponseEntity<TaskResponse> getTaskById(@PathVariable Long id) {
 
         // Gọi Service lấy dữ liệu
@@ -52,6 +55,7 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('TASK_DELETE')")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         // Gọi xuống Service để xử lý logic xóa
         taskService.deleteTask(id);
@@ -61,6 +65,7 @@ public class TaskController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('TASK_CREATE')")
     public ResponseEntity<TaskResponse> createTask(@RequestBody CreateTaskRequest request) {
 
         // Tạm thời hardcode ID người giao việc là 1 (Admin)
@@ -75,6 +80,7 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasAuthority('TASK_UPDATE')")
     public ResponseEntity<TaskResponse> updateTask(
             @PathVariable Long id,
             @RequestBody UpdateTaskRequest request) {
@@ -87,6 +93,7 @@ public class TaskController {
     }
 
     @GetMapping("/{id}/histories")
+    @PreAuthorize("hasAuthority('TASK_VIEW')")
     public ResponseEntity<List<TaskHistoryResponse>> getTaskHistories(@PathVariable Long id) {
         List<TaskHistoryResponse> histories = taskService.getTaskHistories(id);
         return ResponseEntity.ok(histories);

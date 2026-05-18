@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -31,6 +32,7 @@ public class ActivityController {
     private final ActivityService activityService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ACTIVITY_VIEW')")
     public PagedResult<ActivityResponse> getAllActivities(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -73,12 +75,14 @@ public class ActivityController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ACTIVITY_VIEW')")
     public ActivityResponse getActivityById(@PathVariable Long id) {
         return activityService.getById(id);
     }
 
     // Thêm mới Activity
     @PostMapping
+    @PreAuthorize("hasAuthority('ACTIVITY_CREATE')")
     public ResponseEntity<ActivityResponse> createActivity(@Valid @RequestBody CreateActivityRequest request) {
         // Gọi Service xử lý logic lưu vào DB
         ActivityResponse createdActivity = activityService.create(request);
@@ -90,6 +94,7 @@ public class ActivityController {
     // KIỂU 1: Xóa đơn (Bấm vào chi tiết rồi xóa)
     // URL: DELETE /api/v1/activities/{id}
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ACTIVITY_DELETE')")
     @CacheEvict(value = "activities", allEntries = true)
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         activityService.delete(id);
@@ -99,6 +104,7 @@ public class ActivityController {
     // KIỂU 2: Xóa hàng loạt (Trang danh sách, chọn nhiều rồi xóa)
     // URL: DELETE /api/v1/activities
     @DeleteMapping
+    @PreAuthorize("hasAuthority('ACTIVITY_DELETE')")
     @CacheEvict(value = "activities", allEntries = true)
     public ResponseEntity<String> deleteBulk(@RequestBody List<Long> ids) {
         activityService.deleteBulk(ids);
@@ -106,6 +112,8 @@ public class ActivityController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ACTIVITY_UPDATE')")
+    @CacheEvict(value = "activities", allEntries = true)
     public ResponseEntity<ActivityResponse> update(
             @PathVariable Long id,
             @Valid @RequestBody UpdateActivityRequest request) {
