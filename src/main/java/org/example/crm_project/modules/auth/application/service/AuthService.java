@@ -49,7 +49,8 @@ public class AuthService {
                 refreshToken,
                 user.getUsername(),
                 user.getFullname(),
-                user.getRoles()
+                user.getRoles(),
+                user.getScope()
         );
 
     }
