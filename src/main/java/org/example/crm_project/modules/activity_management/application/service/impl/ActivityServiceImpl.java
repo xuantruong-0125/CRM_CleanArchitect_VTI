@@ -48,8 +48,7 @@ public class ActivityServiceImpl implements ActivityService {
         // A. Lưu Activity trước để lấy được ID (notable_id)
         Activity activity = ActivityMapper.toEntity(request);
 
-        
-        activity.setPerformedBy(currentUserId);
+        activity.assignPerformedBy(currentUserId);
         Activity savedActivity = repository.save(activity);
 
         // B. XỬ LÝ GHI CHÚ (NOTE)

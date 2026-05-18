@@ -1,4 +1,4 @@
-package org.example.crm_project.modules.task_managerment.application.service;
+package org.example.crm_project.modules.task_managerment.application.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,6 +11,7 @@ import org.example.crm_project.modules.task_managerment.application.dto.request.
 import org.example.crm_project.modules.task_managerment.application.dto.response.TaskHistoryResponse;
 import org.example.crm_project.modules.task_managerment.application.dto.response.TaskResponse;
 import org.example.crm_project.modules.task_managerment.application.mapper.TaskMapper;
+import org.example.crm_project.modules.task_managerment.application.service.TaskService;
 import org.example.crm_project.modules.task_managerment.domain.constant.TaskPriority;
 import org.example.crm_project.modules.task_managerment.domain.constant.TaskStatus;
 import org.example.crm_project.modules.task_managerment.domain.entity.Task;

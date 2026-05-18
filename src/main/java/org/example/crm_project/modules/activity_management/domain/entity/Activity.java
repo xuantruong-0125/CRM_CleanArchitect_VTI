@@ -5,8 +5,7 @@ import java.time.LocalDateTime;
 import org.example.crm_project.modules.activity_management.domain.constant.ActivityStatus;
 import org.example.crm_project.modules.activity_management.domain.constant.ActivityType;
 
-
-public class Activity  {
+public class Activity {
 
     private Long id;
     private ActivityType activityType;
@@ -29,7 +28,8 @@ public class Activity  {
 
     public Activity(Long id, ActivityType activityType, String subject, String description, LocalDateTime startDate,
             LocalDateTime endDate, LocalDateTime completedAt, String outcome, String relatedToType, Long relatedToId,
-            Long performedBy, ActivityStatus status, boolean isImportant,LocalDateTime createdAt, LocalDateTime updatedAt) {
+            Long performedBy, ActivityStatus status, boolean isImportant, LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
         this.id = id;
         this.activityType = activityType;
         this.subject = subject;
@@ -47,6 +47,10 @@ public class Activity  {
         this.updatedAt = updatedAt;
     }
     // ===== BUSINESS LOGIC =====
+
+    public void assignPerformedBy(Long userId) {
+        this.performedBy = userId;
+    }
 
     // Hoàn thành một hoạt động
     public void complete(String outcome) {
@@ -130,7 +134,6 @@ public class Activity  {
     public boolean isImportant() {
         return isImportant;
     }
-    
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -183,40 +186,96 @@ public class Activity  {
         private ActivityStatus status;
         private boolean isImportant;
 
-        public Builder id(Long id) { this.id = id; return this; }
-        public Builder activityType(ActivityType activityType) { this.activityType = activityType; return this; }
-        public Builder subject(String subject) { this.subject = subject; return this; }
-        public Builder description(String description) { this.description = description; return this; }
-        public Builder startDate(LocalDateTime startDate) { this.startDate = startDate; return this; }
-        public Builder endDate(LocalDateTime endDate) { this.endDate = endDate; return this; }
-        public Builder completedAt(LocalDateTime completedAt) { this.completedAt = completedAt; return this; }
-        public Builder outcome(String outcome) { this.outcome = outcome; return this; }
-        public Builder relatedToType(String relatedToType) { this.relatedToType = relatedToType; return this; }
-        public Builder relatedToId(Long relatedToId) { this.relatedToId = relatedToId; return this; }
-        public Builder performedBy(Long performedBy) { this.performedBy = performedBy; return this; }
-        public Builder status(ActivityStatus status) { this.status = status; return this; }
-        public Builder isImportant(boolean isImportant) { this.isImportant = isImportant; return this; }
+        public Builder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder activityType(ActivityType activityType) {
+            this.activityType = activityType;
+            return this;
+        }
+
+        public Builder subject(String subject) {
+            this.subject = subject;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder startDate(LocalDateTime startDate) {
+            this.startDate = startDate;
+            return this;
+        }
+
+        public Builder endDate(LocalDateTime endDate) {
+            this.endDate = endDate;
+            return this;
+        }
+
+        public Builder completedAt(LocalDateTime completedAt) {
+            this.completedAt = completedAt;
+            return this;
+        }
+
+        public Builder outcome(String outcome) {
+            this.outcome = outcome;
+            return this;
+        }
+
+        public Builder relatedToType(String relatedToType) {
+            this.relatedToType = relatedToType;
+            return this;
+        }
+
+        public Builder relatedToId(Long relatedToId) {
+            this.relatedToId = relatedToId;
+            return this;
+        }
+
+        public Builder performedBy(Long performedBy) {
+            this.performedBy = performedBy;
+            return this;
+        }
+
+        public Builder status(ActivityStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder isImportant(boolean isImportant) {
+            this.isImportant = isImportant;
+            return this;
+        }
 
         public Activity build() {
             // Sử dụng constructor đầy đủ tham số đã có sẵn của Duy để tạo đối tượng
-            return new Activity(id, activityType, subject, description, startDate, endDate, 
-                                completedAt, outcome, relatedToType, relatedToId, 
-                                performedBy, status, isImportant,null, null);
+            return new Activity(id, activityType, subject, description, startDate, endDate,
+                    completedAt, outcome, relatedToType, relatedToId,
+                    performedBy, status, isImportant, null, null);
         }
     }
+
     // ===== BUSINESS LOGIC =====
-    public void updateInfo(String subject, String description, ActivityStatus status, 
-                           LocalDateTime startDate, LocalDateTime endDate, 
-                           LocalDateTime completedAt, String outcome, Boolean important) {
-                           
-        validateSubject(subject); 
+    public void updateInfo(String subject, String description, ActivityStatus status,
+            LocalDateTime startDate, LocalDateTime endDate,
+            LocalDateTime completedAt, String outcome, Boolean important) {
+
+        validateSubject(subject);
         this.subject = subject;
         this.description = description;
-        
-        if (startDate != null) this.startDate = startDate;
-        if (endDate != null) this.endDate = endDate;
-        if (outcome != null) this.outcome = outcome;
-        if (important != null) this.isImportant = important;
+
+        if (startDate != null)
+            this.startDate = startDate;
+        if (endDate != null)
+            this.endDate = endDate;
+        if (outcome != null)
+            this.outcome = outcome;
+        if (important != null)
+            this.isImportant = important;
 
         // 1. Cập nhật status trước
         if (status != null) {
@@ -227,12 +286,11 @@ public class Activity  {
         if (this.status == ActivityStatus.COMPLETED) {
             if (completedAt != null) {
                 this.completedAt = completedAt;
-            } 
-            else if (this.completedAt == null) {
+            } else if (this.completedAt == null) {
                 this.completedAt = LocalDateTime.now();
             }
         } else {
-         
+
             this.completedAt = null;
         }
     }
