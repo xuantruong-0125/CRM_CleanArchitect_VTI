@@ -54,13 +54,13 @@ public class ActivityRepositoryImpl implements ActivityRepository {
     }
 
     @Override
-    public PagedResult<Activity> findAll(Pagination pagination, Long currentUserId, String scope) { // Đổi tham số thành
+    public PagedResult<Activity> findAll(Pagination pagination, Long currentUserId,Long organizationId, String scope) { // Đổi tham số thành
                                                                                                     // Pagination
         // 1. Chuyển từ Pagination (Domain) -> Pageable (Spring)
         Pageable pageable = PageRequest.of(pagination.page(), pagination.size());
 
         // 2. Lấy Page từ Spring Data
-        Page<ActivityJpaEntity> springPage = jpaRepository.findAllWithScope(currentUserId, scope, pageable);
+        Page<ActivityJpaEntity> springPage = jpaRepository.findAllWithScope(currentUserId, organizationId, scope, pageable);
 
         // 3. Map sang Domain và đóng gói vào PagedResult của Duy
         List<Activity> content = springPage.getContent().stream()
@@ -72,7 +72,7 @@ public class ActivityRepositoryImpl implements ActivityRepository {
 
     @Override
     public PagedResult<Activity> findByCriteria(ActivitySearchCriteria criteria, Pagination pagination,
-            Long currentUserId, String scope) {
+            Long currentUserId, Long organizationId, String scope) {
         // 1. Chuyển từ Pagination (Domain) -> Pageable (Spring)
         Pageable pageable = PageRequest.of(pagination.page(), pagination.size());
 
@@ -105,7 +105,8 @@ public class ActivityRepositoryImpl implements ActivityRepository {
                 criteria.fromDate(),
                 criteria.toDate(),
                 criteria.important(),
-                currentUserId, // Gác cổng ID
+                currentUserId,
+                organizationId,
                 scope,
                 pageable);
 

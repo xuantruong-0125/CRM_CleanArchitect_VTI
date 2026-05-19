@@ -6,6 +6,7 @@ import org.example.crm_project.modules.note_management.Application.dto.request.C
 import org.example.crm_project.modules.note_management.Application.dto.response.NoteResponse;
 import org.example.crm_project.modules.note_management.Application.service.contracts.NoteService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,28 +24,30 @@ public class NoteController {
     private final NoteService noteService;
 
     // API lấy danh sách ghi chú của Activity
+    @PreAuthorize("hasAuthority('ACTIVITY_VIEW')")
     @GetMapping("/activity/{id}")
     public ResponseEntity<List<NoteResponse>> getNotesByActivity(@PathVariable Long id) {
         return ResponseEntity.ok(noteService.getNotesByActivityId(id));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNote(@PathVariable Long id) {
         noteService.deleteNote(id);
-
-        // Trả về HTTP Status 204 (No Content) - Báo hiệu xóa thành công
         return ResponseEntity.noContent().build();
     }
+
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<NoteResponse> createNote(@RequestBody CreateNoteRequest request) {
         NoteResponse response = noteService.createNote(request);
         return ResponseEntity.ok(response);
     }
+
     // API lấy danh sách ghi chú của Task
+    @PreAuthorize("hasAuthority('TASK_VIEW')")
     @GetMapping("/task/{id}")
     public ResponseEntity<List<NoteResponse>> getNotesByTask(@PathVariable Long id) {
         return ResponseEntity.ok(noteService.getNotesByTaskId(id));
     }
-
-
 }

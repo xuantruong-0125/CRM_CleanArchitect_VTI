@@ -23,12 +23,15 @@ public class Activity {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private Long organizationId;
+
     public Activity() {
     }
 
     public Activity(Long id, ActivityType activityType, String subject, String description, LocalDateTime startDate,
             LocalDateTime endDate, LocalDateTime completedAt, String outcome, String relatedToType, Long relatedToId,
-            Long performedBy, ActivityStatus status, boolean isImportant, LocalDateTime createdAt,
+            Long performedBy, ActivityStatus status, boolean isImportant,
+            Long organizationId, LocalDateTime createdAt,
             LocalDateTime updatedAt) {
         this.id = id;
         this.activityType = activityType;
@@ -43,13 +46,23 @@ public class Activity {
         this.performedBy = performedBy;
         this.status = status;
         this.isImportant = isImportant;
+
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+
+        this.organizationId = organizationId;
     }
     // ===== BUSINESS LOGIC =====
 
     public void assignPerformedBy(Long userId) {
         this.performedBy = userId;
+    }
+    public void assignOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
+    }
+    
+    public Long getOrganizationId() {
+        return organizationId;
     }
 
     // Hoàn thành một hoạt động
@@ -186,6 +199,8 @@ public class Activity {
         private ActivityStatus status;
         private boolean isImportant;
 
+        private Long organizationId;
+
         public Builder id(Long id) {
             this.id = id;
             return this;
@@ -251,11 +266,17 @@ public class Activity {
             return this;
         }
 
+
+        public Builder organizationId(Long organizationId) {
+            this.organizationId = organizationId;
+            return this;
+        }
+
         public Activity build() {
             // Sử dụng constructor đầy đủ tham số đã có sẵn của Duy để tạo đối tượng
             return new Activity(id, activityType, subject, description, startDate, endDate,
                     completedAt, outcome, relatedToType, relatedToId,
-                    performedBy, status, isImportant, null, null);
+                    performedBy, status, isImportant, organizationId,null, null);
         }
     }
 

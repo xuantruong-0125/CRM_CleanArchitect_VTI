@@ -38,6 +38,7 @@ public class ActivityJpaMapper {
                 jpa.getPerformedBy(),
                 status, // Nhét status đã convert vào đây
                 jpa.getIsImportant() != null ? jpa.getIsImportant() : false,
+                jpa.getOrganizationId(),
                 jpa.getCreatedAt(),
                 jpa.getUpdatedAt()
 

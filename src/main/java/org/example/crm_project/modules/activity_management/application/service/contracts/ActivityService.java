@@ -13,7 +13,7 @@ import org.example.crm_project.modules.activity_management.domain.repository.Pag
 public interface ActivityService {
     ActivityResponse create(CreateActivityRequest request);
     void delete(Long id);
-    void deleteBulk(List<Long> ids); // Thêm hàm xóa hàng loạt
+    void deleteBulk(List<Long> ids); 
     PagedResult<ActivityResponse> getAll(Pagination pagination);
     ActivityResponse getById(Long id);
     PagedResult<ActivityResponse> filter(ActivitySearchCriteria criteria, Pagination pagination);

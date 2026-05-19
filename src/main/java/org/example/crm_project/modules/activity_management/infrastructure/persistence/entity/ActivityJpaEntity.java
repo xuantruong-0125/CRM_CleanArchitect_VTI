@@ -78,4 +78,9 @@ public class ActivityJpaEntity {
     // Cột 18: Soft delete
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    @Column(name = "organization_id")
+    private Long organizationId;
+
+    
 }

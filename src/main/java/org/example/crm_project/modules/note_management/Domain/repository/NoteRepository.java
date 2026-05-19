@@ -1,5 +1,6 @@
 package org.example.crm_project.modules.note_management.Domain.repository;
 import java.util.List;
+import java.util.Optional;
 
 import org.example.crm_project.modules.note_management.Domain.entity.Note;
 
@@ -13,4 +14,6 @@ public interface NoteRepository {
     
     // 3. Yêu cầu LẤY DANH SÁCH ghi chú của 1 đối tượng cụ thể (Vd: Activity số 10)
     List<Note> findByNotableTypeAndNotableId(String notableType, Long notableId);
+
+    Optional<Note> findById(Long id);
 }

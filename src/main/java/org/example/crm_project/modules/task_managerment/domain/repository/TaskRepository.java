@@ -22,6 +22,7 @@ public interface TaskRepository {
             TaskStatus status,
             TaskPriority priority,
             Long currentUserId,
+            Long organizationId,
             String scope,
             Pageable pageable);
 }

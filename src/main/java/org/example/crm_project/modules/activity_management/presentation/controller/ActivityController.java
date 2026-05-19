@@ -9,6 +9,8 @@ import org.example.crm_project.modules.activity_management.application.dto.respo
 import org.example.crm_project.modules.activity_management.application.service.contracts.ActivityService;
 import org.example.crm_project.modules.activity_management.domain.repository.PagedResult;
 import org.example.crm_project.modules.activity_management.domain.repository.Pagination;
+import org.example.crm_project.modules.note_management.Application.dto.request.CreateNoteRequest;
+import org.example.crm_project.modules.note_management.Application.dto.response.NoteResponse;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -121,5 +123,4 @@ public class ActivityController {
 
         return ResponseEntity.ok(updated);
     }
-
 }

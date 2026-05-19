@@ -19,13 +19,16 @@ public interface JpaActivityRepository extends JpaRepository<ActivityJpaEntity, 
         List<ActivityJpaEntity> findByRelatedToTypeAndRelatedToIdOrderByCreatedAtDesc(String type, Long id);
 
         @Query("SELECT a FROM ActivityJpaEntity a WHERE " +
-                        "(:scope = 'ALL' OR a.performedBy = :currentUserId)")
+                        "(:scope = 'ALL' OR " +
+                        " (:scope = 'OWN' AND a.performedBy = :currentUserId) OR " +
+                        " (:scope = 'BRANCH' AND a.organizationId = :organizationId))")
         Page<ActivityJpaEntity> findAllWithScope(
                         @Param("currentUserId") Long currentUserId,
+                        @Param("organizationId") Long organizationId,
                         @Param("scope") String scope,
                         Pageable pageable);
 
-        @Query("SELECT a FROM ActivityJpaEntity a" +
+        @Query("SELECT a FROM ActivityJpaEntity a " +
                         "WHERE (:search IS NULL OR LOWER(a.subject) LIKE LOWER(CONCAT('%', :search, '%')) " +
                         "OR LOWER(a.description) LIKE LOWER(CONCAT('%', :search, '%'))) " +
                         "AND (:status IS NULL OR a.status = :status) " +
@@ -35,7 +38,12 @@ public interface JpaActivityRepository extends JpaRepository<ActivityJpaEntity, 
                         "AND (:relatedToType IS NULL OR a.relatedToType = :relatedToType) " +
                         "AND (:fromDate IS NULL OR a.startDate >= :fromDate) " +
                         "AND (:toDate IS NULL OR a.startDate <= :toDate)" +
-                        "AND (:important IS NULL OR a.isImportant = :important)")
+                        "AND (:important IS NULL OR a.isImportant = :important)" +
+                        "AND (" +
+                        "   :scope = 'ALL' OR " +
+                        "   (:scope = 'OWN' AND a.performedBy = :currentUserId) OR " +
+                        "   (:scope = 'BRANCH' AND a.organizationId = :organizationId)" +
+                        ")")
         Page<ActivityJpaEntity> searchActivities(
                         @Param("search") String search,
                         @Param("status") Integer status,
@@ -47,6 +55,7 @@ public interface JpaActivityRepository extends JpaRepository<ActivityJpaEntity, 
                         @Param("toDate") LocalDateTime toDate,
                         @Param("important") Boolean important,
                         @Param("currentUserId") Long currentUserId,
+                        @Param("organizationId") Long organizationId,
                         @Param("scope") String scope,
                         Pageable pageable);
 }

@@ -23,6 +23,7 @@ public class TaskJpaMapper {
                 jpa.getRelatedToId(),
                 jpa.getAssignedTo(),
                 jpa.getAssignedBy(),
+                jpa.getOrganizationId(),
                 jpa.getContactId(),
                 jpa.getCreatedAt(),
                 jpa.getUpdatedAt());
@@ -47,6 +48,7 @@ public class TaskJpaMapper {
         jpa.setRelatedToId(domain.getRelatedToId());
         jpa.setAssignedTo(domain.getAssignedTo());
         jpa.setAssignedBy(domain.getAssignedBy());
+        jpa.setOrganizationId(domain.getOrganizationId());
         jpa.setContactId(domain.getContactId());
         jpa.setCreatedAt(domain.getCreatedAt());
         jpa.setUpdatedAt(domain.getUpdatedAt());

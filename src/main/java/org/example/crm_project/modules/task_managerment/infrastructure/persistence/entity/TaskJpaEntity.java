@@ -52,4 +52,7 @@ public class TaskJpaEntity {
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @Column(name = "organization_id")
+    private Long organizationId;
 }

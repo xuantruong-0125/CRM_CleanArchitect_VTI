@@ -57,4 +57,8 @@ public class Note {
         );
     }
 
+    public void assignCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
+    }
+
 }

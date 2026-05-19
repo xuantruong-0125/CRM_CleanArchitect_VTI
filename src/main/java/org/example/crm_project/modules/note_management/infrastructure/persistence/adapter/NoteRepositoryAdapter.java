@@ -2,12 +2,14 @@ package org.example.crm_project.modules.note_management.infrastructure.persisten
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.example.crm_project.modules.note_management.Application.mapper.NoteMapper;
 import org.example.crm_project.modules.note_management.Domain.entity.Note;
 import org.example.crm_project.modules.note_management.Domain.repository.NoteRepository;
 import org.example.crm_project.modules.note_management.infrastructure.persistence.entity.NoteJpaEntity;
 import org.example.crm_project.modules.note_management.infrastructure.persistence.repository.NoteJpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository // BẮT BUỘC CÓ: Để Spring tạo Bean và Inject vào Service
@@ -51,6 +53,12 @@ public class NoteRepositoryAdapter implements NoteRepository {
         return entities.stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
+    }
+    @Override
+    public Optional<Note> findById(Long id) {
+        // jpaRepository ở đây chính là NoteJpaRepository của Duy
+        return jpaRepository.findById(id)
+                .map(this::toDomain); 
     }
 
     // ==========================================

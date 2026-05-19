@@ -62,9 +62,16 @@ public class TaskServiceImpl implements TaskService {
         TaskStatus taskStatus = (status != null && !status.isEmpty()) ? TaskStatus.valueOf(status) : null;
         TaskPriority taskPriority = (priority != null && !priority.isEmpty()) ? TaskPriority.valueOf(priority) : null;
 
+        Long organizationId = null;
+        try {
+            var userDto = userService.getById(currentUser.getId());
+            organizationId = userDto.getOrganizationId();
+        } catch (Exception e) {
+        }
+
         // Lên Database lấy dữ liệu (Nó sẽ tự động trả về cục Page chứa Entity)
         Page<Task> domainPage = taskRepository.searchTasks(subject, taskStatus, taskPriority,
-                currentUser.getId(), currentUser.getScope(), pageable);
+                currentUser.getId(), organizationId, currentUser.getScope(), pageable);
 
         // 2. Map từ Domain -> Response
         return domainPage.map(domain -> {
@@ -87,9 +94,17 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskResponse createTask(CreateTaskRequest request) {
-        
+
         AuthUser currentUser = getCurrentAuthenticatedUser();
         Long assignedByUserId = currentUser.getId();
+
+        Long organizationId = null;
+        try {
+            var userDto = userService.getById(assignedByUserId);
+            organizationId = userDto.getOrganizationId();
+        } catch (Exception e) {
+            organizationId = null;
+        }
 
         // 1. Khởi tạo đối tượng Task (Domain) với dữ liệu từ Request
         Task newTask = new Task(
@@ -109,6 +124,7 @@ public class TaskServiceImpl implements TaskService {
                 request.getAssignedTo(),
                 assignedByUserId,
                 request.getContactId(),
+                organizationId,
                 LocalDateTime.now(), // createdAt
                 LocalDateTime.now() // updatedAt
         );
@@ -143,6 +159,11 @@ public class TaskServiceImpl implements TaskService {
             boolean isCreatedByMe = currentUser.getId().equals(task.getAssignedBy());
             if (!isAssignedToMe && !isCreatedByMe) {
                 throw new AccessDeniedException("Bạn không có quyền chỉnh sửa công việc của người khác!");
+            }
+        } else if ("BRANCH".equals(currentUser.getScope())) {
+            var managerDto = userService.getById(currentUser.getId());
+            if (task.getOrganizationId() == null || !task.getOrganizationId().equals(managerDto.getOrganizationId())) {
+                throw new AccessDeniedException("Bạn không có quyền chỉnh sửa công việc của phòng ban khác!");
             }
         }
 
@@ -287,6 +308,14 @@ public class TaskServiceImpl implements TaskService {
                     && !currentUser.getId().equals(task.getAssignedBy())) {
                 throw new AccessDeniedException("Bạn không có quyền xem chi tiết công việc của người khác!");
             }
+        } else if ("BRANCH".equals(currentUser.getScope())) {
+            // Lấy thông tin phòng ban của Manager
+            var managerDto = userService.getById(currentUser.getId());
+
+            // Giả định Entity Task của bạn đã lưu organizationId
+            if (task.getOrganizationId() == null || !task.getOrganizationId().equals(managerDto.getOrganizationId())) {
+                throw new AccessDeniedException("Bạn không có quyền xem công việc của phòng ban khác!");
+            }
         }
 
         // 2. Lấy FullName người thực hiện
@@ -314,6 +343,11 @@ public class TaskServiceImpl implements TaskService {
             if (!currentUser.getId().equals(task.getAssignedBy())) {
                 throw new AccessDeniedException("Bạn không phải người tạo, không thể xóa công việc này!");
             }
+        } else if ("BRANCH".equals(currentUser.getScope())) {
+            var managerDto = userService.getById(currentUser.getId());
+            if (task.getOrganizationId() == null || !task.getOrganizationId().equals(managerDto.getOrganizationId())) {
+                throw new AccessDeniedException("Bạn không có quyền xóa công việc của phòng ban khác!");
+            }
         }
         // 2. Nếu tồn tại thì gọi Repository để xóa
         taskRepository.deleteById(id);
@@ -323,6 +357,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<TaskHistoryResponse> getTaskHistories(Long taskId) {
 
+        this.getTaskById(taskId);
+        
         List<TaskHistoryEntity> historyEntities = historyRepository.findByTaskIdOrderByCreatedAtDesc(taskId);
 
         // 2. Dùng Stream để lặp qua từng dòng lịch sử và biến nó thành Response DTO
