@@ -9,9 +9,7 @@ import org.example.crm_project.modules.activity_management.application.dto.respo
 import org.example.crm_project.modules.activity_management.application.service.contracts.ActivityService;
 import org.example.crm_project.modules.activity_management.domain.repository.PagedResult;
 import org.example.crm_project.modules.activity_management.domain.repository.Pagination;
-import org.hibernate.query.Page;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

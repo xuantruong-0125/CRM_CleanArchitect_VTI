@@ -26,6 +26,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,17 +44,27 @@ public class TaskServiceImpl implements TaskService {
     private final ApplicationEventPublisher eventPublisher;
     private final JpaTaskHistoryRepository historyRepository;
 
+    private AuthUser getCurrentAuthenticatedUser() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof AuthUser) {
+            return (AuthUser) auth.getPrincipal();
+        }
+        throw new AccessDeniedException("Phiên đăng nhập không hợp lệ hoặc đã hết hạn!");
+    }
+
     @Override
     public Page<TaskResponse> getAllTasks(String subject, String status, String priority, int page, int size) {
         // Tạo đối tượng yêu cầu phân trang của Spring
         Pageable pageable = PageRequest.of(page, size);
+        AuthUser currentUser = getCurrentAuthenticatedUser();
 
-        // Chuyển đổi String từ Frontend thành Enum của Backend (Nếu có truyền)
+        // Chuyển đổi String từ Frontend thành Enum của Backend
         TaskStatus taskStatus = (status != null && !status.isEmpty()) ? TaskStatus.valueOf(status) : null;
         TaskPriority taskPriority = (priority != null && !priority.isEmpty()) ? TaskPriority.valueOf(priority) : null;
 
         // Lên Database lấy dữ liệu (Nó sẽ tự động trả về cục Page chứa Entity)
-        Page<Task> domainPage = taskRepository.searchTasks(subject, taskStatus, taskPriority, pageable);
+        Page<Task> domainPage = taskRepository.searchTasks(subject, taskStatus, taskPriority,
+                currentUser.getId(), currentUser.getScope(), pageable);
 
         // 2. Map từ Domain -> Response
         return domainPage.map(domain -> {
@@ -74,7 +86,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskResponse createTask(CreateTaskRequest request, Long assignedByUserId) {
+    public TaskResponse createTask(CreateTaskRequest request) {
+        
+        AuthUser currentUser = getCurrentAuthenticatedUser();
+        Long assignedByUserId = currentUser.getId();
 
         // 1. Khởi tạo đối tượng Task (Domain) với dữ liệu từ Request
         Task newTask = new Task(
@@ -92,7 +107,7 @@ public class TaskServiceImpl implements TaskService {
                 request.getRelatedToType(),
                 request.getRelatedToId(),
                 request.getAssignedTo(),
-                assignedByUserId, // Người giao việc
+                assignedByUserId,
                 request.getContactId(),
                 LocalDateTime.now(), // createdAt
                 LocalDateTime.now() // updatedAt
@@ -122,16 +137,21 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Task với ID: " + id));
 
+        AuthUser currentUser = getCurrentAuthenticatedUser();
+        if ("OWN".equals(currentUser.getScope())) {
+            boolean isAssignedToMe = currentUser.getId().equals(task.getAssignedTo());
+            boolean isCreatedByMe = currentUser.getId().equals(task.getAssignedBy());
+            if (!isAssignedToMe && !isCreatedByMe) {
+                throw new AccessDeniedException("Bạn không có quyền chỉnh sửa công việc của người khác!");
+            }
+        }
+
         TaskStatus oldStatus = task.getStatus();
         Integer oldProgress = task.getProgressPercent();
-
         String oldSubject = task.getSubject();
-
         Long oldAssigneeId = task.getAssignedTo();
         Long oldContactId = task.getContactId();
-
         TaskPriority oldPriority = task.getPriority();
-
         LocalDateTime oldStartDate = task.getStartDate();
         LocalDateTime oldDueDate = task.getDueDate();
         String oldDescription = task.getDescription();
@@ -176,9 +196,6 @@ public class TaskServiceImpl implements TaskService {
 
         // 5. Lưu xuống Database
         Task savedTask = taskRepository.save(task);
-
-        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        AuthUser currentUser = (AuthUser) auth.getPrincipal();
         Long currentUserId = currentUser.getId();
 
         if (oldStatus != savedTask.getStatus()) {
@@ -264,6 +281,14 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Task với ID: " + id));
 
+        AuthUser currentUser = getCurrentAuthenticatedUser();
+        if ("OWN".equals(currentUser.getScope())) {
+            if (!currentUser.getId().equals(task.getAssignedTo())
+                    && !currentUser.getId().equals(task.getAssignedBy())) {
+                throw new AccessDeniedException("Bạn không có quyền xem chi tiết công việc của người khác!");
+            }
+        }
+
         // 2. Lấy FullName người thực hiện
         String fullName = null;
         if (task.getAssignedTo() != null) {
@@ -281,11 +306,15 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void deleteTask(Long id) {
-        // 1. Kiểm tra xem Task có tồn tại trong DB không
-        if (!taskRepository.existsById(id)) {
-            throw new EntityNotFoundException("Không thể xóa! Không tìm thấy Task với ID: " + id);
-        }
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không thể xóa! Không tìm thấy Task với ID: " + id));
 
+        AuthUser currentUser = getCurrentAuthenticatedUser();
+        if ("OWN".equals(currentUser.getScope())) {
+            if (!currentUser.getId().equals(task.getAssignedBy())) {
+                throw new AccessDeniedException("Bạn không phải người tạo, không thể xóa công việc này!");
+            }
+        }
         // 2. Nếu tồn tại thì gọi Repository để xóa
         taskRepository.deleteById(id);
 

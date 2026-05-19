@@ -67,15 +67,9 @@ public class TaskController {
     @PostMapping
     @PreAuthorize("hasAuthority('TASK_CREATE')")
     public ResponseEntity<TaskResponse> createTask(@RequestBody CreateTaskRequest request) {
+        
+        TaskResponse response = taskService.createTask(request);
 
-        // Tạm thời hardcode ID người giao việc là 1 (Admin)
-        // Sau này tích hợp Spring Security (JWT) vào thì sẽ lấy ID thật từ
-        // SecurityContext
-        Long currentUserId = 1L;
-
-        TaskResponse response = taskService.createTask(request, currentUserId);
-
-        // Trả về HTTP Status 201 (Created)
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

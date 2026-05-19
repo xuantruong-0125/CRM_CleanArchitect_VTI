@@ -19,9 +19,9 @@ public interface ActivityRepository  {
     void deleteById(Long id);
     void deleteBulk(List<Long> ids);
     void deleteAllByIdInBatch(List<Long> ids);
-    PagedResult<Activity> findAll(Pagination pagination);
+    PagedResult<Activity> findAll(Pagination pagination, Long currentUserId, String scope);
 
     Optional<Activity> findById(Long id);
 
-    PagedResult<Activity> findByCriteria(ActivitySearchCriteria criteria, Pagination pagination);
+    PagedResult<Activity> findByCriteria(ActivitySearchCriteria criteria, Pagination pagination, Long currentUserId, String scope);
 }

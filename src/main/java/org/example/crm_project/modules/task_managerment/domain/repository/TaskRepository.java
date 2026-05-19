@@ -10,9 +10,18 @@ import org.springframework.data.domain.Pageable;
 
 public interface TaskRepository {
     Task save(Task task);
-    Optional<Task> findById(Long id);
-    void deleteById(Long id);
-    boolean existsById(Long id);
-    Page<Task> searchTasks(String subject, TaskStatus status, TaskPriority priority, Pageable pageable);
 
+    Optional<Task> findById(Long id);
+
+    void deleteById(Long id);
+
+    boolean existsById(Long id);
+
+    Page<Task> searchTasks(
+            String subject,
+            TaskStatus status,
+            TaskPriority priority,
+            Long currentUserId,
+            String scope,
+            Pageable pageable);
 }

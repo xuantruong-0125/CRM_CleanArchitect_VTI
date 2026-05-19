@@ -9,7 +9,7 @@ import org.example.crm_project.modules.task_managerment.application.dto.response
 import org.springframework.data.domain.Page;
 
 public interface TaskService {
-    TaskResponse createTask(CreateTaskRequest request, Long assignedByUserId);
+    TaskResponse createTask(CreateTaskRequest request);
     TaskResponse updateTask(Long id, UpdateTaskRequest request);
     
     TaskResponse getTaskById(Long id);

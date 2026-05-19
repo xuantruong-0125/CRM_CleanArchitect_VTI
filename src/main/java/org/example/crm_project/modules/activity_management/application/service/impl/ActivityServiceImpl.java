@@ -17,8 +17,9 @@ import org.example.crm_project.modules.auth.domain.entity.AuthUser;
 import org.example.crm_project.modules.note_management.Application.mapper.NoteMapper;
 import org.example.crm_project.modules.note_management.Domain.entity.Note;
 import org.example.crm_project.modules.note_management.Domain.repository.NoteRepository;
-import org.example.crm_project.modules.note_management.infrastructure.persistence.entity.NoteJpaEntity;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,18 +37,24 @@ public class ActivityServiceImpl implements ActivityService {
     private final ActivityUserProvider userProvider;
     private final NoteRepository noteRepository;
 
+    private AuthUser getCurrentAuthenticatedUser() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof AuthUser) {
+            return (AuthUser) auth.getPrincipal();
+        }
+        throw new AccessDeniedException("Phiên đăng nhập không hợp lệ hoặc đã hết hạn!");
+    }
+
     // 1. THÊM MỚI
     @CacheEvict(value = "activities", allEntries = true)
     @Transactional
     public ActivityResponse create(CreateActivityRequest request) {
 
-        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        AuthUser currentUser = (AuthUser) auth.getPrincipal();
+        AuthUser currentUser = getCurrentAuthenticatedUser();
         Long currentUserId = currentUser.getId();
 
         // A. Lưu Activity trước để lấy được ID (notable_id)
         Activity activity = ActivityMapper.toEntity(request);
-
         activity.assignPerformedBy(currentUserId);
         Activity savedActivity = repository.save(activity);
 
@@ -72,6 +79,11 @@ public class ActivityServiceImpl implements ActivityService {
         Activity existingActivity = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy hoạt động ID: " + id));
 
+        AuthUser currentUser = getCurrentAuthenticatedUser();
+        if ("OWN".equals(currentUser.getScope()) && !currentUser.getId().equals(existingActivity.getPerformedBy())) {
+            throw new AccessDeniedException("Bạn không có quyền chỉnh sửa hoạt động của người khác!");
+        }
+
         // Cập nhật các thông tin mới từ request vào Entity
         existingActivity.updateInfo(
                 request.getSubject(),
@@ -94,16 +106,26 @@ public class ActivityServiceImpl implements ActivityService {
     @CacheEvict(value = "activities", allEntries = true)
     @Transactional
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new EntityNotFoundException("Không thể xóa, không tìm thấy hoạt động ID: " + id);
+        Activity existingActivity = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy hoạt động ID: " + id));
+
+        // CHỐT CHẶN BẢO MẬT: Cấm xóa hàng người khác
+        AuthUser currentUser = getCurrentAuthenticatedUser();
+        if ("OWN".equals(currentUser.getScope()) && !currentUser.getId().equals(existingActivity.getPerformedBy())) {
+            throw new AccessDeniedException("Bạn không có quyền xóa hoạt động của người khác!");
         }
+
         repository.deleteById(id);
     }
 
-    @Cacheable(value = "activities", key = "#p0?.page() + '-' + #p0?.size()")
+    @Cacheable(value = "activities", key = "#p0?.page() + '-' + #p0?.size() + '-' + (T(org.springframework.security.core.context.SecurityContextHolder).getContext()?.authentication?.principal?.id ?: 0L)")
     public PagedResult<ActivityResponse> getAll(Pagination pagination) {
+
+        AuthUser currentUser = getCurrentAuthenticatedUser();
+
         // 1. Gọi Repo lấy PagedResult (đã có content, totalElements, totalPages)
-        PagedResult<Activity> pagedActivities = repository.findAll(pagination);
+        PagedResult<Activity> pagedActivities = repository.findAll(pagination, currentUser.getId(),
+                currentUser.getScope());
 
         // 2. Chuyển đổi từ Domain Entity sang Response DTO
         List<ActivityResponse> responses = pagedActivities.content().stream()
@@ -121,20 +143,25 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     public ActivityResponse getById(Long id) {
-
         Activity activity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy hoạt động ID: " + id));
 
-        // GIẢ SỬ: Sau này Duy gọi sang UserModule để lấy tên theo ID
-        // Hiện tại mình giả lập tên là "Admin" để Duy test API trước
+        AuthUser currentUser = getCurrentAuthenticatedUser();
+        if ("OWN".equals(currentUser.getScope()) && !currentUser.getId().equals(activity.getPerformedBy())) {
+            throw new AccessDeniedException("Bạn không có quyền xem hoạt động của người khác!");
+        }
+
         String employeeName = userProvider.getUserFullNameById(activity.getPerformedBy());
 
         return ActivityMapper.toResponse(activity, employeeName);
     }
 
     public PagedResult<ActivityResponse> filter(ActivitySearchCriteria criteria, Pagination pagination) {
+
+        AuthUser currentUser = getCurrentAuthenticatedUser();
         // 1. Gọi Repo với criteria và pagination
-        PagedResult<Activity> pagedActivities = repository.findByCriteria(criteria, pagination);
+        PagedResult<Activity> pagedActivities = repository.findByCriteria(criteria, pagination, currentUser.getId(),
+                currentUser.getScope());
 
         // 2. Map sang Response
         List<ActivityResponse> responses = pagedActivities.content().stream()
@@ -157,37 +184,17 @@ public class ActivityServiceImpl implements ActivityService {
         if (ids == null || ids.isEmpty()) {
             return;
         }
+        AuthUser currentUser = getCurrentAuthenticatedUser();
+        if ("OWN".equals(currentUser.getScope())) {
+            for (Long id : ids) {
+                Activity act = repository.findById(id).orElse(null);
+                if (act != null && !currentUser.getId().equals(act.getPerformedBy())) {
+                    throw new AccessDeniedException(
+                            "Trong danh sách chọn có hoạt động của người khác, không thể xóa loạt!");
+                }
+            }
+        }
         // Duy dùng phương thức InBatch để xóa cực nhanh cho danh sách lớn
         repository.deleteAllByIdInBatch(ids);
     }
-
-    // @Override
-    // @Transactional
-    // @CacheEvict(value = "activities", allEntries = true) // Xóa cache để trang
-    // danh sách cập nhật data mới
-    // public ActivityResponse update(Long id, UpdateActivityRequest request) {
-    // // 1. Tìm bản ghi cũ trong DB
-    // Activity existingActivity = repository.findById(id)
-    // .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy hoạt động để
-    // cập nhật: " + id));
-
-    // // 2. Cập nhật thông tin (Duy gọi hàm updateInfo trong Entity)
-    // existingActivity.updateInfo(
-    // request.getSubject(),
-    // request.getDescription(),
-    // request.getStatus(),
-    // request.getActivityType()
-    // // Thêm các trường khác nếu cần như startDate, endDate...
-    // );
-
-    // // 3. Lưu vào MySQL
-    // Activity updatedActivity = repository.save(existingActivity);
-
-    // // 4. Lấy tên người dùng (từ Redis/UserModule) để đóng gói trả về
-    // String userName =
-    // userProvider.getUserFullNameById(updatedActivity.getPerformedBy());
-
-    // return ActivityMapper.toResponse(updatedActivity, userName);
-    // }
-
 }

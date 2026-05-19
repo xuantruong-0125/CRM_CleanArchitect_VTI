@@ -13,15 +13,16 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface JpaTaskRepository extends JpaRepository<TaskJpaEntity, Long> {
     @Query("SELECT t FROM TaskJpaEntity t WHERE " +
-           "(:subject IS NULL OR :subject = '' OR LOWER(t.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) AND " +
-           "(:status IS NULL OR t.status = :status) AND " +
-           "(:priority IS NULL OR t.priority = :priority)")
+            "(:subject IS NULL OR :subject = '' OR LOWER(t.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) AND " +
+            "(:status IS NULL OR t.status = :status) AND " +
+            "(:priority IS NULL OR t.priority = :priority) AND" +
+            "(:scope = 'ALL' OR t.assignedTo = :currentUserId OR t.assignedBy = :currentUserId)")
     Page<TaskJpaEntity> searchTasks(
             @Param("subject") String subject,
             @Param("status") TaskStatus status,
             @Param("priority") TaskPriority priority,
-            Pageable pageable
-    );
-
+            @Param("currentUserId") Long currentUserId,
+            @Param("scope") String scope,
+            Pageable pageable);
 
 }

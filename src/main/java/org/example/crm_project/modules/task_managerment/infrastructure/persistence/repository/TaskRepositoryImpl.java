@@ -28,10 +28,10 @@ public class TaskRepositoryImpl implements TaskRepository {
 
     // THỰC THI HÀM PHÂN TRANG Ở ĐÂY
     @Override
-    public Page<Task> searchTasks(String subject, TaskStatus status, TaskPriority priority, Pageable pageable) {
+    public Page<Task> searchTasks(String subject, TaskStatus status, TaskPriority priority,Long currentUserId, String scope, Pageable pageable) {
         
         // 1. Gọi JPA lấy lên cục Page chứa Entity
-        Page<TaskJpaEntity> jpaPage = jpaRepository.searchTasks(subject, status, priority, pageable);
+        Page<TaskJpaEntity> jpaPage = jpaRepository.searchTasks(subject, status, priority, currentUserId, scope, pageable);
         
         // 2. Map TẤT CẢ Entity trong Page đó sang Domain Model (Task)
         return jpaPage.map(TaskJpaMapper::toDomain);
