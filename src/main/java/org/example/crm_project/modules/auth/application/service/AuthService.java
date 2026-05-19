@@ -45,6 +45,7 @@ public class AuthService {
         String refreshToken = tokenProvider.generateRefreshToken(user);
 
         return new LoginResponse(
+                user.getId(),
                 accessToken,
                 refreshToken,
                 user.getUsername(),

@@ -30,6 +30,7 @@ public class JwtProviderImpl implements TokenProvider {
     public String generateAccessToken(AuthUser user) {
         return Jwts.builder()
                 .setSubject(user.getUsername())
+                .claim("userId", user.getId())
                 .claim("roles", user.getRoles())
                 .claim("scope", user.getScope())
                 .setIssuedAt(new Date())
