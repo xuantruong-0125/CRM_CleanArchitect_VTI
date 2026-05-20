@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+<<<<<<< HEAD
+=======
+
+/uploads
+>>>>>>> origin/features/contracts_invoice
