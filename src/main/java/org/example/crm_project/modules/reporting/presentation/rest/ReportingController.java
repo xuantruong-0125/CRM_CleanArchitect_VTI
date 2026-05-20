@@ -16,7 +16,8 @@ public class ReportingController {
     private final GetDetailReportUseCase getDetailReportUseCase;
     private final GetDashboardDataUseCase getDashboardDataUseCase;
 
-    public ReportingController(GetDetailReportUseCase getDetailReportUseCase, GetDashboardDataUseCase getDashboardDataUseCase) {
+    public ReportingController(GetDetailReportUseCase getDetailReportUseCase,
+            GetDashboardDataUseCase getDashboardDataUseCase) {
         this.getDetailReportUseCase = getDetailReportUseCase;
         this.getDashboardDataUseCase = getDashboardDataUseCase;
     }

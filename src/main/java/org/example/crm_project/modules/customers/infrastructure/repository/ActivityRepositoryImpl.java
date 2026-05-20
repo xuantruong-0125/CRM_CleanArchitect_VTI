@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * Repository Implementation: ActivityRepositoryImpl
  */
-@Repository
+@Repository("customerActivityRepository")
 public class ActivityRepositoryImpl implements ActivityRepository {
 
     private final ActivityJpaRepository jpaRepository;
