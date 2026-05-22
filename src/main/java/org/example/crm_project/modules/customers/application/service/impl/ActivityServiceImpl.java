@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Service Implementation: ActivityServiceImpl
  * Business logic for Activity management
  */
-@Service
+@Service("customerActivityService")
 @Transactional
 public class ActivityServiceImpl implements ActivityService {
 

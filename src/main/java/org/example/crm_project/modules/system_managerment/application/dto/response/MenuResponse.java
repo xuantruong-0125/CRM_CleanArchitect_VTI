@@ -12,6 +12,7 @@ public class MenuResponse {
 
     private Long id;
     private String name;
+    private String code;
     private Long parentId;
 
     @Builder.Default

@@ -2,14 +2,21 @@ package org.example.crm_project.modules.system_managerment.application.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.crm_project.modules.system_managerment.application.dto.request.*;
+import org.example.crm_project.modules.system_managerment.application.dto.response.PaginationResponse;
 import org.example.crm_project.modules.system_managerment.application.dto.response.UserResponse;
 import org.example.crm_project.modules.system_managerment.application.mapper.UserMapper;
 import org.example.crm_project.modules.system_managerment.domain.entity.User;
+import org.example.crm_project.modules.system_managerment.domain.exception.EmailAlreadyExistsException;
 import org.example.crm_project.modules.system_managerment.domain.repository.UserRepository;
 import org.example.crm_project.modules.system_managerment.domain.constant.UserStatus;
 import org.example.crm_project.modules.system_managerment.domain.exception.UserNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -18,10 +25,15 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository repository;
+    private final OrganizationService organizationService;
 
     // ===== CREATE =====
     @Transactional
     public UserResponse create(CreateUserRequest req) {
+
+        if (repository.existsByEmail(req.getEmail())) {
+            throw new EmailAlreadyExistsException(req.getEmail());
+        }
 
         User user = new User(
                 req.getUsername(),
@@ -45,6 +57,30 @@ public class UserService {
                 .toList();
     }
 
+    // ===== GET WITH PAGINATION =====
+    public PaginationResponse<UserResponse> getUsers(int page, int size) {
+
+        // 🔥 fix default
+        if (page < 0) page = 0;
+        if (size <= 0) size = 15;
+
+        // 🔥 tránh client spam
+        size = Math.min(size, 50);
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("id").descending()
+        );
+
+        Page<User> userPage = repository.findAll(pageable);
+
+        return UserMapper.toPageResponse(
+                userPage,
+                UserMapper::toResponse
+        );
+    }
+
     // ===== GET BY ID =====
     public UserResponse getById(Long id) {
         return repository.findById(id)
@@ -55,6 +91,7 @@ public class UserService {
     // ===== UPDATE =====
     @Transactional
     public UserResponse update(Long id, UpdateUserRequest req) {
+
 
         User user = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
@@ -99,5 +136,36 @@ public class UserService {
 
         user.delete(); // set deletedAt
         repository.save(user);
+    }
+
+    // ===== GET WITH FILTER =====
+    public PaginationResponse<UserResponse> searchUsers(
+            int page,
+            int size,
+            Long roleId,
+            Long organizationId
+    ) {
+
+        if (page < 0) page = 0;
+        if (size <= 0) size = 15;
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<Long> orgIds = null;
+
+        if (organizationId != null) {
+            orgIds = organizationService.getAllChildrenIds(organizationId);
+        }
+
+        Page<User> userPage = repository.search(
+                roleId,
+                orgIds,
+                pageable
+        );
+
+        return UserMapper.toPageResponse(
+                userPage,
+                UserMapper::toResponse
+        );
     }
 }

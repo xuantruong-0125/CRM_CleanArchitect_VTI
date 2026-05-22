@@ -8,7 +8,7 @@ import org.example.crm_project.modules.quote_management.application.dto.response
 import org.example.crm_project.modules.quote_management.application.service.QuoteService;
 import org.example.crm_project.modules.customers.domain.entity.Customer;
 import org.example.crm_project.modules.quote_management.domain.entity.DocumentTemplate;
-import org.example.crm_project.modules.quote_management.domain.entity.Product;
+import org.example.crm_project.modules.products_managerment.domain.entity.Product;
 import org.example.crm_project.shared.model.PageResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

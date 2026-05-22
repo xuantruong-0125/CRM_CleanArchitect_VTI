@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -115,5 +116,32 @@ public class OrganizationService {
         }
 
         return roots;
+    }
+
+    public List<Long> getAllChildrenIds(Long rootId) {
+
+        List<Organization> all = repository.findAll();
+
+        Map<Long, List<Long>> tree = all.stream()
+                .filter(o -> o.getParentId() != null)
+                .collect(Collectors.groupingBy(
+                        Organization::getParentId,
+                        Collectors.mapping(Organization::getId, Collectors.toList())
+                ));
+
+        List<Long> result = new ArrayList<>();
+        dfs(rootId, tree, result);
+
+        return result;
+    }
+
+    private void dfs(Long id, Map<Long, List<Long>> tree, List<Long> result) {
+        result.add(id);
+
+        if (!tree.containsKey(id)) return;
+
+        for (Long child : tree.get(id)) {
+            dfs(child, tree, result);
+        }
     }
 }

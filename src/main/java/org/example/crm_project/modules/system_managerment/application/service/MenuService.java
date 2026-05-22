@@ -26,6 +26,10 @@ public class MenuService {
             throw new RuntimeException("Parent menu not found");
         }
 
+        if (repository.existsByCode(req.getCode())) {
+            throw new RuntimeException("Menu code already exists");
+        }
+
         Menu menu = MenuMapper.toEntity(req);
 
         return MenuMapper.toResponse(repository.save(menu));
@@ -49,6 +53,13 @@ public class MenuService {
 
         if (req.getName() != null) {
             menu.changeName(req.getName());
+        }
+
+        if (req.getCode() != null && !req.getCode().equals(menu.getCode())) {
+            if (repository.existsByCode(req.getCode())) {
+                throw new RuntimeException("Menu code already exists");
+            }
+            menu.changeCode(req.getCode());
         }
 
         menu.changeParent(req.getParentId());

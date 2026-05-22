@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.*;
 //import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -19,4 +21,19 @@ public interface JpaUserRepository extends JpaRepository<UserEntity, Long> {
     // 🔥 pagination (quan trọng khi >1000)
     @Query("SELECT u FROM UserEntity u WHERE u.deletedAt IS NULL")
     Page<UserEntity> findAllActive(Pageable pageable);
+
+
+    @Query("""
+    SELECT u FROM UserEntity u
+    WHERE u.deletedAt IS NULL
+    AND (:roleId IS NULL OR u.roleId = :roleId)
+    AND (:orgIds IS NULL OR u.organizationId IN :orgIds)
+""")
+    Page<UserEntity> search(
+            @Param("roleId") Long roleId,
+            @Param("orgIds") List<Long> orgIds,
+            Pageable pageable
+    );
+
+    boolean existsByEmail(String email);
 }

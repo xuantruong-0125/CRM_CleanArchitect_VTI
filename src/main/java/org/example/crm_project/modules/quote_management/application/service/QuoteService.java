@@ -12,13 +12,13 @@ import org.example.crm_project.modules.quote_management.application.mapper.Quote
 import org.example.crm_project.modules.quote_management.domain.constant.TemplateType;
 import org.example.crm_project.modules.customers.domain.entity.Customer;
 import org.example.crm_project.modules.quote_management.domain.entity.DocumentTemplate;
-import org.example.crm_project.modules.quote_management.domain.entity.Product;
+import org.example.crm_project.modules.products_managerment.domain.entity.Product;
 import org.example.crm_project.modules.quote_management.domain.entity.Quote;
 import org.example.crm_project.modules.quote_management.domain.entity.QuoteLineItem;
 import org.example.crm_project.modules.quote_management.domain.exception.QuoteNotFoundException;
 import org.example.crm_project.modules.customers.domain.repository.CustomerRepository;
 import org.example.crm_project.modules.quote_management.domain.repository.DocumentTemplateRepository;
-import org.example.crm_project.modules.quote_management.domain.repository.ProductRepository;
+import org.example.crm_project.modules.products_managerment.domain.repository.ProductRepository;
 import org.example.crm_project.modules.quote_management.domain.repository.QuoteLineItemRepository;
 import org.example.crm_project.modules.quote_management.domain.repository.QuoteRepository;
 import org.springframework.stereotype.Service;
@@ -236,7 +236,7 @@ public class QuoteService {
         }
 
         public List<Product> getAllActiveProducts() {
-                return productRepository.findAllActive();
+                return productRepository.findAll();
         }
 
         public List<DocumentTemplate> getQuoteTemplates() {
@@ -259,7 +259,7 @@ public class QuoteService {
         private List<QuoteLineItemResponse> buildLineItemResponses(List<QuoteLineItem> lineItems) {
                 return lineItems.stream()
                                 .map(item -> {
-                                        String productName = productRepository.findById(item.getProductId())
+                                        String productName = productRepository.findById(item.getProductId().longValue())
                                                         .map(Product::getName).orElse("");
                                         return QuoteMapper.toLineItemResponse(item, productName);
                                 })
