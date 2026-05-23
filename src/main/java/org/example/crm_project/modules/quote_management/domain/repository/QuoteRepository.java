@@ -22,7 +22,7 @@ public interface QuoteRepository {
 
     PageResult<Quote> searchByKeyword(String keyword, int page, int size);
 
-    PageResult<Quote> searchQuotes(String keyword, Long customerId, Integer statusId, String quoteNumber, java.time.LocalDateTime fromDate, java.time.LocalDateTime toDate, int page, int size);
+    PageResult<Quote> searchQuotes(String keyword, Long customerId, Integer statusId, String quoteNumber, java.time.LocalDateTime fromDate, java.time.LocalDateTime toDate, int page, int size, String sortField, String sortDir);
 
     void delete(Quote quote);
 

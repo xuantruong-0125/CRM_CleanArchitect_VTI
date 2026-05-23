@@ -63,7 +63,6 @@ public interface JpaQuoteRepository extends JpaRepository<QuoteEntity, Integer> 
                 q.quoteNumber LIKE CONCAT('%', :keyword, '%') OR
                 c.name LIKE CONCAT('%', :keyword, '%')
             ))
-            ORDER BY q.createdAt DESC
             """)
     Page<QuoteEntity> searchQuotes(
             @Param("keyword") String keyword,
