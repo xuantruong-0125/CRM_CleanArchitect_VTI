@@ -19,8 +19,10 @@ import org.example.crm_project.modules.quote_management.domain.exception.QuoteNo
 import org.example.crm_project.modules.customers.domain.repository.CustomerRepository;
 import org.example.crm_project.modules.quote_management.domain.repository.DocumentTemplateRepository;
 import org.example.crm_project.modules.products_managerment.domain.repository.ProductRepository;
+import org.example.crm_project.modules.quote_management.domain.repository.ProductForQuoteRepository;
 import org.example.crm_project.modules.quote_management.domain.repository.QuoteLineItemRepository;
 import org.example.crm_project.modules.quote_management.domain.repository.QuoteRepository;
+import org.example.crm_project.modules.quote_management.application.dto.response.QuoteFormProductResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,12 +47,13 @@ public class QuoteService {
         private final CustomerRepository customerRepository;
         private final ProductRepository productRepository;
         private final DocumentTemplateRepository templateRepository;
+        private final ProductForQuoteRepository productForQuoteRepository;
 
         // SEARCH (PAGINATED)
         public PageResult<QuoteResponse> search(String keyword, Long customerId, Integer statusId, String quoteNumber,
-                        java.time.LocalDateTime fromDate, java.time.LocalDateTime toDate, int page, int size) {
+                        java.time.LocalDateTime fromDate, java.time.LocalDateTime toDate, int page, int size, String sortField, String sortDir) {
                 PageResult<Quote> quotesPage = quoteRepository.searchQuotes(keyword, customerId, statusId, quoteNumber,
-                                fromDate, toDate, page, size);
+                                fromDate, toDate, page, size, sortField, sortDir);
                 return toResponsePage(quotesPage);
         }
 
@@ -209,6 +212,15 @@ public class QuoteService {
                 return BigDecimal.ZERO; // Không dùng nữa, giữ lại để không lỗi compile nếu có nơi gọi
         }
 
+        // UPDATE STATUS
+        @Transactional
+        public void updateStatus(Integer id, Integer statusId) {
+                Quote quote = quoteRepository.findById(id)
+                                .orElseThrow(() -> new QuoteNotFoundException(id));
+                quote.changeStatus(statusId);
+                quoteRepository.save(quote);
+        }
+
         // SOFT DELETE
         @Transactional
         public void softDelete(Integer id) {
@@ -235,8 +247,8 @@ public class QuoteService {
                 return customerRepository.searchCustomers(keyword, 10);
         }
 
-        public List<Product> getAllActiveProducts() {
-                return productRepository.findAll();
+        public List<QuoteFormProductResponse> getAllActiveProducts() {
+                return productForQuoteRepository.findAllActiveForForm();
         }
 
         public List<DocumentTemplate> getQuoteTemplates() {

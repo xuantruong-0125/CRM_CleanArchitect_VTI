@@ -158,6 +158,16 @@ public class Quote {
     }
 
     /**
+     * Chuyển trạng thái báo giá sang trạng thái mới
+     */
+    public void changeStatus(Integer newStatusId) {
+        if (newStatusId == null || newStatusId < 1 || newStatusId > 4) {
+            throw new IllegalArgumentException("Trạng thái không hợp lệ: " + newStatusId);
+        }
+        this.statusId = newStatusId;
+    }
+
+    /**
      * Soft delete: đánh dấu đã xóa
      */
     public void softDelete() {

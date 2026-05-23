@@ -9,7 +9,10 @@ import org.example.crm_project.shared.model.PageResult;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
+
+import java.util.Set;
 import org.example.crm_project.modules.quote_management.infrastructure.persistence.entity.QuoteEntity;
 
 import java.util.List;
@@ -22,6 +25,8 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class QuoteRepositoryImpl implements QuoteRepository {
+
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("id", "totalAmount", "validUntil", "statusId", "createdAt");
 
     private final JpaQuoteRepository jpaRepository;
 
@@ -59,8 +64,10 @@ public class QuoteRepositoryImpl implements QuoteRepository {
     }
 
     @Override
-    public PageResult<Quote> searchQuotes(String keyword, Long customerId, Integer statusId, String quoteNumber, java.time.LocalDateTime fromDate, java.time.LocalDateTime toDate, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public PageResult<Quote> searchQuotes(String keyword, Long customerId, Integer statusId, String quoteNumber, java.time.LocalDateTime fromDate, java.time.LocalDateTime toDate, int page, int size, String sortField, String sortDir) {
+        String field = (sortField != null && ALLOWED_SORT_FIELDS.contains(sortField)) ? sortField : "id";
+        Sort.Direction direction = "asc".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, field));
         Page<QuoteEntity> entityPage = jpaRepository.searchQuotes(keyword, customerId, statusId, quoteNumber, fromDate, toDate, pageable);
         return mapToPageResult(entityPage);
     }

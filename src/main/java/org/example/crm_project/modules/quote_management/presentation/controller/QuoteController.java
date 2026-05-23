@@ -8,7 +8,7 @@ import org.example.crm_project.modules.quote_management.application.dto.response
 import org.example.crm_project.modules.quote_management.application.service.QuoteService;
 import org.example.crm_project.modules.customers.domain.entity.Customer;
 import org.example.crm_project.modules.quote_management.domain.entity.DocumentTemplate;
-import org.example.crm_project.modules.products_managerment.domain.entity.Product;
+import org.example.crm_project.modules.quote_management.application.dto.response.QuoteFormProductResponse;
 import org.example.crm_project.shared.model.PageResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +39,12 @@ public class QuoteController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime toDate,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(quoteService.search(keyword, customerId, statusId, quoteNumber, fromDate, toDate, page, size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id,desc") String sort) {
+        String[] parts = sort.split(",", 2);
+        String sortField = parts[0];
+        String sortDir = parts.length > 1 ? parts[1] : "desc";
+        return ResponseEntity.ok(quoteService.search(keyword, customerId, statusId, quoteNumber, fromDate, toDate, page, size, sortField, sortDir));
     }
 
     // ===== GET BY CUSTOMER (phân trang tối ưu bằng index) =====
@@ -70,6 +74,15 @@ public class QuoteController {
             @PathVariable Integer id,
             @RequestBody UpdateQuoteRequest req) {
         return ResponseEntity.ok(quoteService.update(id, req));
+    }
+
+    // ===== UPDATE STATUS =====
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Void> updateStatus(
+            @PathVariable Integer id,
+            @RequestBody Map<String, Integer> body) {
+        quoteService.updateStatus(id, body.get("statusId"));
+        return ResponseEntity.ok().build();
     }
 
     // ===== SOFT DELETE =====
@@ -105,7 +118,7 @@ public class QuoteController {
     }
 
     @GetMapping("/form-data/products")
-    public ResponseEntity<List<Product>> getProducts() {
+    public ResponseEntity<List<QuoteFormProductResponse>> getProducts() {
         return ResponseEntity.ok(quoteService.getAllActiveProducts());
     }
 
