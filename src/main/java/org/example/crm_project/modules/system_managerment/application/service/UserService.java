@@ -1,6 +1,7 @@
 package org.example.crm_project.modules.system_managerment.application.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.crm_project.modules.auth.application.port.PasswordEncoderPort;
 import org.example.crm_project.modules.system_managerment.application.dto.request.*;
 import org.example.crm_project.modules.system_managerment.application.dto.response.PaginationResponse;
 import org.example.crm_project.modules.system_managerment.application.dto.response.UserResponse;
@@ -26,6 +27,8 @@ public class UserService {
 
     private final UserRepository repository;
     private final OrganizationService organizationService;
+    private final PasswordEncoderPort passwordEncoder;
+
 
     // ===== CREATE =====
     @Transactional
@@ -34,10 +37,13 @@ public class UserService {
         if (repository.existsByEmail(req.getEmail())) {
             throw new EmailAlreadyExistsException(req.getEmail());
         }
+        String hashedPassword = passwordEncoder.encode(
+                req.getPassword()
+        );
 
         User user = new User(
                 req.getUsername(),
-                req.getPassword(), // ⚠️ sau này hash
+                hashedPassword,
                 req.getEmail(),
                 req.getFullName(),
                 req.getRoleId(),
@@ -98,6 +104,14 @@ public class UserService {
 
         if (req.getEmail() != null) user.changeEmail(req.getEmail());
         if (req.getFullName() != null) user.changeFullName(req.getFullName());
+
+        if (req.getUsername() != null) {
+            user.changeUsername(req.getUsername());
+        }
+
+        if (req.getPassword() != null) {
+            user.changePasswordDirect(req.getPassword());
+        }
 
         if (req.getRoleId() != null) {
             user.changeRole(req.getRoleId());

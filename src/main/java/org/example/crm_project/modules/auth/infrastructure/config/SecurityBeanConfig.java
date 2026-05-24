@@ -1,17 +1,18 @@
 package org.example.crm_project.modules.auth.infrastructure.config;
 
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@SpringBootApplication(scanBasePackages = "org.example.crm_project")
 @Configuration
-public class PasswordConfig {
+public class SecurityBeanConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+
+        // strength = 10 mặc định
         return new BCryptPasswordEncoder();
     }
 }

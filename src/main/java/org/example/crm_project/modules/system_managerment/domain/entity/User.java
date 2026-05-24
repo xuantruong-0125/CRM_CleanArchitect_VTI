@@ -123,8 +123,27 @@ public class User {
         if (newPassword == null || newPassword.length() < 6) {
             throw new InvalidUserException("Password too short");
         }
-
         this.password = newPassword;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void changePasswordDirect(String password) {
+
+        if (password == null || password.length() < 6) {
+            throw new InvalidUserException("Password too short");
+        }
+
+        this.password = password;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void changeUsername(String username) {
+
+        if (username == null || username.isBlank()) {
+            throw new InvalidUserException("Username invalid");
+        }
+
+        this.username = username;
         this.updatedAt = LocalDateTime.now();
     }
 

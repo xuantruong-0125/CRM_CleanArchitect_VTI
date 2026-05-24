@@ -1,4 +1,4 @@
-package org.example.crm_project.modules.auth.infrastructure.encoder;
+package org.example.crm_project.modules.auth.infrastructure.security;
 
 import lombok.RequiredArgsConstructor;
 import org.example.crm_project.modules.auth.application.port.PasswordEncoderPort;
@@ -15,4 +15,11 @@ public class BCryptPasswordEncoderAdapter implements PasswordEncoderPort {
     public boolean matches(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
+
+    @Override
+    public String encode(String rawPassword) {
+
+        return passwordEncoder.encode(rawPassword);
+    }
+
 }
