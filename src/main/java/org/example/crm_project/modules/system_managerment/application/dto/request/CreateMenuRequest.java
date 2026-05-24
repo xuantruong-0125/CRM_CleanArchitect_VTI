@@ -5,5 +5,6 @@ import lombok.Data;
 @Data
 public class CreateMenuRequest {
     private String name;
+    private String code;
     private Long parentId;
 }

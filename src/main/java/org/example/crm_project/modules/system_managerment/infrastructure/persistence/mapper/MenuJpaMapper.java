@@ -9,14 +9,20 @@ public class MenuJpaMapper {
         MenuEntity e = new MenuEntity();
         e.setId(menu.getId()); // 🔥 cực quan trọng (update)
         e.setName(menu.getName());
+        e.setCode(menu.getCode());
         e.setParentId(menu.getParentId());
         return e;
     }
 
     public static Menu toDomain(MenuEntity e) {
+        String code = e.getCode();
+        if (code == null || code.trim().isEmpty()) {
+            code = "LEGACY_MENU_" + e.getId();
+        }
         return new Menu(
                 e.getId(),
                 e.getName(),
+                code,
                 e.getParentId()
         );
     }

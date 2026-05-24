@@ -46,4 +46,31 @@ public class MenuRepositoryImpl implements MenuRepository {
     public boolean existsById(Long id) {
         return jpaRepository.existsById(id);
     }
+
+    @Override
+    public Optional<Menu> findByCode(String code) {
+        return jpaRepository.findByCode(code)
+                .map(MenuJpaMapper::toDomain);
+    }
+
+    @Override
+    public boolean existsByCode(String code) {
+        return jpaRepository.existsByCode(code);
+    }
+
+    @Override
+    public List<Menu> findByParentId(Long parentId) {
+        return jpaRepository.findByParentId(parentId)
+                .stream()
+                .map(MenuJpaMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Menu> findRootMenus() {
+        return jpaRepository.findByParentIdIsNull()
+                .stream()
+                .map(MenuJpaMapper::toDomain)
+                .toList();
+    }
 }

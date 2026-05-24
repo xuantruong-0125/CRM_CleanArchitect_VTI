@@ -6,4 +6,5 @@ import lombok.Data;
 public class UpdateMenuRequest {
     private String name;
     private Long parentId;
+    private String code;
 }

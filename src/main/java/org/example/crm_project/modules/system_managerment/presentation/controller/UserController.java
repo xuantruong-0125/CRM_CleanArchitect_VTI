@@ -1,13 +1,13 @@
 package org.example.crm_project.modules.system_managerment.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.crm_project.modules.system_managerment.application.dto.response.PaginationResponse;
 import org.example.crm_project.modules.system_managerment.application.service.UserService;
 import org.example.crm_project.modules.system_managerment.presentation.dto.request.*;
 import org.example.crm_project.modules.system_managerment.presentation.dto.response.UserResponseDto;
 import org.example.crm_project.modules.system_managerment.presentation.mapper.UserPresentationMapper;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -26,14 +26,57 @@ public class UserController {
         );
     }
 
-    // ===== GET ALL =====
+//    // ===== GET ALL =====
+//    @GetMapping
+//    public List<UserResponseDto> getAll() {
+//        return service.getAll()
+//                .stream()
+//                .map(UserPresentationMapper::toDto)
+//                .toList();
+//    }
+
     @GetMapping
-    public List<UserResponseDto> getAll() {
-        return service.getAll()
-                .stream()
-                .map(UserPresentationMapper::toDto)
-                .toList();
+    public PaginationResponse<UserResponseDto> getUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size
+    ) {
+        var result = service.getUsers(page, size);
+
+        return PaginationResponse.<UserResponseDto>builder()
+                .content(result.getContent()
+                        .stream()
+                        .map(UserPresentationMapper::toDto)
+                        .toList())
+                .page(result.getPage())
+                .size(result.getSize())
+                .totalElements(result.getTotalElements())
+                .totalPages(result.getTotalPages())
+                .build();
     }
+
+    // ===== SEARCH (FILTER) =====
+    @GetMapping("/search")
+    public PaginationResponse<UserResponseDto> searchUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size,
+            @RequestParam(required = false) Long roleId,
+            @RequestParam(required = false) Long organizationId
+    ) {
+        var result = service.searchUsers(page, size, roleId, organizationId);
+
+        return PaginationResponse.<UserResponseDto>builder()
+                .content(result.getContent()
+                        .stream()
+                        .map(UserPresentationMapper::toDto)
+                        .toList())
+                .page(result.getPage())
+                .size(result.getSize())
+                .totalElements(result.getTotalElements())
+                .totalPages(result.getTotalPages())
+                .build();
+    }
+
+
 
     // ===== GET BY ID =====
     @GetMapping("/{id}")

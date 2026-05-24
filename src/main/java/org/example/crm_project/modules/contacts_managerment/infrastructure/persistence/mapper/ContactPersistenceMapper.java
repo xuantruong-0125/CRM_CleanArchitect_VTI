@@ -2,8 +2,8 @@ package org.example.crm_project.modules.contacts_managerment.infrastructure.pers
 
 import org.example.crm_project.modules.contacts_managerment.domain.entity.Contact;
 import org.example.crm_project.modules.contacts_managerment.infrastructure.persistence.entity.ContactEntity;
-import org.example.crm_project.modules.customers.domain.entity.Customer;
-import org.example.crm_project.modules.customers.infrastructure.persistence.entity.CustomerEntity;
+import org.example.crm_project.modules.customers_managerment.domain.entity.Customer;
+import org.example.crm_project.modules.customers_managerment.infrastructure.persistence.entity.CustomerEntity;
 import org.springframework.stereotype.Component;
 
 @Component

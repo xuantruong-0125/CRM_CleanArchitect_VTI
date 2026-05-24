@@ -7,13 +7,19 @@ import java.util.Optional;
 
 public interface MenuRepository {
 
+    // ===== COMMAND =====
     Menu save(Menu menu);
+    void deleteById(Long id); // hoặc soft delete
 
+    // ===== QUERY =====
     Optional<Menu> findById(Long id);
+    Optional<Menu> findByCode(String code);
 
     List<Menu> findAll();
 
-    void deleteById(Long id);
+    List<Menu> findByParentId(Long parentId);
+    List<Menu> findRootMenus();
 
     boolean existsById(Long id);
+    boolean existsByCode(String code);
 }

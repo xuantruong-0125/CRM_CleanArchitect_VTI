@@ -1,6 +1,6 @@
 package org.example.crm_project.modules.contacts_managerment.domain.entity;
 
-import org.example.crm_project.modules.customers.domain.entity.Customer;
+import org.example.crm_project.modules.customers_managerment.domain.entity.Customer;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

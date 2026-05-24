@@ -10,13 +10,13 @@ import org.example.crm_project.modules.quote_management.application.dto.response
 import org.example.crm_project.modules.quote_management.application.dto.response.QuoteResponse;
 import org.example.crm_project.modules.quote_management.application.mapper.QuoteMapper;
 import org.example.crm_project.modules.quote_management.domain.constant.TemplateType;
-import org.example.crm_project.modules.customers.domain.entity.Customer;
+import org.example.crm_project.modules.customers_managerment.domain.entity.Customer;
 import org.example.crm_project.modules.quote_management.domain.entity.DocumentTemplate;
 import org.example.crm_project.modules.quote_management.domain.entity.Product;
 import org.example.crm_project.modules.quote_management.domain.entity.Quote;
 import org.example.crm_project.modules.quote_management.domain.entity.QuoteLineItem;
 import org.example.crm_project.modules.quote_management.domain.exception.QuoteNotFoundException;
-import org.example.crm_project.modules.customers.domain.repository.CustomerRepository;
+import org.example.crm_project.modules.customers_managerment.domain.repository.CustomerRepository;
 import org.example.crm_project.modules.quote_management.domain.repository.DocumentTemplateRepository;
 import org.example.crm_project.modules.quote_management.domain.repository.ProductRepository;
 import org.example.crm_project.modules.quote_management.domain.repository.QuoteLineItemRepository;

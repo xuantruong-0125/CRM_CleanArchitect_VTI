@@ -16,12 +16,17 @@ public class RoleMenuPermissionController {
     private final RoleMenuPermissionService service;
 
     // ===== UPSERT =====
-    @PostMapping
-    public RoleMenuPermissionResponse upsert(
-            @RequestBody UpsertRoleMenuPermissionRequest req
-    ) {
-        return service.upsert(req);
+//    @PostMapping
+//    public RoleMenuPermissionResponse upsert(
+//            @RequestBody UpsertRoleMenuPermissionRequest req
+//    ) {
+//        return service.upsert(req);
+//    }
+    @PostMapping("/batch")
+    public void upsertBatch(@RequestBody UpsertRoleMenuPermissionRequest req) {
+        service.upsertBatch(req);
     }
+
 
     // ===== GET BY ROLE =====
     @GetMapping("/role/{roleId}")
@@ -47,4 +52,13 @@ public class RoleMenuPermissionController {
     ) {
         service.deleteByRole(roleId);
     }
+
+    @GetMapping("/full/{roleId}")
+    public List<RoleMenuPermissionResponse> getFullByRole(
+            @PathVariable Long roleId
+    ) {
+        return service.getFullByRole(roleId);
+    }
+
+
 }
