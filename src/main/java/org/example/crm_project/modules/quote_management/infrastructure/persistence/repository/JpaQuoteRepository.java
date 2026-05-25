@@ -1,7 +1,7 @@
 package org.example.crm_project.modules.quote_management.infrastructure.persistence.repository;
 
 import org.example.crm_project.modules.quote_management.infrastructure.persistence.entity.QuoteEntity;
-import org.example.crm_project.modules.customers.infrastructure.persistence.entity.CustomerEntity;
+import org.example.crm_project.modules.customers_managerment.infrastructure.persistence.entity.CustomerEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

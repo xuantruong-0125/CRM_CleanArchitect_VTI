@@ -9,7 +9,7 @@ import org.example.crm_project.modules.contacts_managerment.application.mapper.C
 import org.example.crm_project.modules.contacts_managerment.domain.entity.Contact;
 import org.example.crm_project.modules.contacts_managerment.domain.exception.ContactNotFoundException;
 import org.example.crm_project.modules.contacts_managerment.domain.repository.ContactRepository;
-import org.example.crm_project.modules.customers.domain.repository.CustomerRepository;
+import org.example.crm_project.modules.customers_managerment.domain.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

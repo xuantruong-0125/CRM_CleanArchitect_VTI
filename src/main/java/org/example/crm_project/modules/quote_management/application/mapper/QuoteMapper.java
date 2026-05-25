@@ -5,7 +5,7 @@ import org.example.crm_project.modules.quote_management.application.dto.request.
 import org.example.crm_project.modules.quote_management.application.dto.response.QuoteDetailResponse;
 import org.example.crm_project.modules.quote_management.application.dto.response.QuoteLineItemResponse;
 import org.example.crm_project.modules.quote_management.application.dto.response.QuoteResponse;
-import org.example.crm_project.modules.customers.domain.entity.Customer;
+import org.example.crm_project.modules.customers_managerment.domain.entity.Customer;
 import org.example.crm_project.modules.quote_management.domain.entity.DocumentTemplate;
 import org.example.crm_project.modules.quote_management.domain.entity.Quote;
 import org.example.crm_project.modules.quote_management.domain.entity.QuoteLineItem;
