@@ -59,7 +59,11 @@ public class ActivityServiceImpl implements ActivityService {
         try {
             var userDto = userService.getById(currentUserId);
             organizationId = userDto.getOrganizationId();
+
+            System.out.println("=== DEBUG: Lấy được Org ID = " + organizationId + " của User ID = " + currentUserId);
         } catch (Exception e) {
+            System.err.println("=== LỖI KHI LẤY USER THÔNG TIN ĐỂ ĐÓNG DẤU PHÒNG BAN: ===");
+            e.printStackTrace();
         }
 
         // A. Lưu Activity trước để lấy được ID (notable_id)

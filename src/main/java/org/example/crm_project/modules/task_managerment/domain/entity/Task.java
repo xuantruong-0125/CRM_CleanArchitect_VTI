@@ -179,28 +179,26 @@ public class Task {
         if (newProgress != null)
             this.progressPercent = newProgress;
 
-        // Luật 1: Nếu kéo thanh tiến độ lên 100% -> Tự động chuyển trạng thái thành
-        // Hoàn thành
+        if ((this.status == TaskStatus.CANCELED || this.status == TaskStatus.DEFERRED)
+                && this.progressPercent != null && this.progressPercent == 100) {
+            throw new IllegalArgumentException("Không thể đặt tiến độ 100% cho công việc Đã hủy hoặc Tạm hoãn!");
+        }
+
         if (this.progressPercent != null && this.progressPercent == 100) {
             this.status = TaskStatus.COMPLETED;
         }
 
-        // Luật 2: Nếu bấm nút "Đã hoàn thành" -> Tiến độ auto nhảy lên 100% và ghi nhận
-        // giờ
         if (this.status == TaskStatus.COMPLETED) {
             this.progressPercent = 100;
             if (this.completedAt == null) {
                 this.completedAt = LocalDateTime.now();
             }
         }
-        // Luật 3: "Quay xe" - Trạng thái không phải Hoàn thành thì không được có giờ
-        // hoàn thành
+
         else {
             this.completedAt = null;
         }
 
-        // Luật 4: Nếu đang "Chưa bắt đầu" nhưng lại điền tiến độ > 0 -> Tự động ép sang
-        // "Đang tiến hành"
         if (this.status == TaskStatus.NOT_STARTED && this.progressPercent != null && this.progressPercent > 0) {
             this.status = TaskStatus.IN_PROGRESS;
         }

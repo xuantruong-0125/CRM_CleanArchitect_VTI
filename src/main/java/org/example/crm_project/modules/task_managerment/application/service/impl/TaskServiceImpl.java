@@ -86,8 +86,6 @@ public class TaskServiceImpl implements TaskService {
                     fullName = "User không tồn tại";
                 }
             }
-
-            // domain lúc này đã là class Task rồi, ném thẳng vào Mapper luôn
             return TaskMapper.toResponse(domain, fullName);
         });
     }
@@ -103,12 +101,12 @@ public class TaskServiceImpl implements TaskService {
             var userDto = userService.getById(assignedByUserId);
             organizationId = userDto.getOrganizationId();
         } catch (Exception e) {
-            organizationId = null;
+            e.printStackTrace();
         }
 
         // 1. Khởi tạo đối tượng Task (Domain) với dữ liệu từ Request
         Task newTask = new Task(
-                null, // ID tự tăng, để null
+                null,
                 request.getSubject(),
                 request.getDescription(),
                 request.getStartDate(),
@@ -123,11 +121,11 @@ public class TaskServiceImpl implements TaskService {
                 request.getRelatedToId(),
                 request.getAssignedTo(),
                 assignedByUserId,
-                request.getContactId(),
                 organizationId,
-                LocalDateTime.now(), // createdAt
-                LocalDateTime.now() // updatedAt
-        );
+                request.getContactId(),
+
+                LocalDateTime.now(),
+                LocalDateTime.now());
 
         // 2. Gọi Repository lưu xuống Database
         Task savedTask = taskRepository.save(newTask);
@@ -358,7 +356,7 @@ public class TaskServiceImpl implements TaskService {
     public List<TaskHistoryResponse> getTaskHistories(Long taskId) {
 
         this.getTaskById(taskId);
-        
+
         List<TaskHistoryEntity> historyEntities = historyRepository.findByTaskIdOrderByCreatedAtDesc(taskId);
 
         // 2. Dùng Stream để lặp qua từng dòng lịch sử và biến nó thành Response DTO

@@ -1,9 +1,9 @@
 package org.example.crm_project.modules.task_managerment.domain.constant;
 
 public enum TaskStatus {
-    NOT_STARTED, 
+    NOT_STARTED,
     IN_PROGRESS, 
-    WAITING, 
-    COMPLETED, 
-    DEFERRED
+    DEFERRED,    
+    COMPLETED,   
+    CANCELED
 }
