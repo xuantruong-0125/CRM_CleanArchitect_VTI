@@ -75,7 +75,7 @@ public class ActivityController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ACTIVITY_VIEW')")
+//    @PreAuthorize("hasAuthority('ACTIVITY_VIEW')")
     public ActivityResponse getActivityById(@PathVariable Long id) {
         return activityService.getById(id);
     }

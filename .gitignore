@@ -31,3 +31,13 @@ build/
 
 ### VS Code ###
 .vscode/
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+/uploads
+>>>>>>> origin/features/contracts_invoice
+=======
+
+/uploads
+>>>>>>> origin/feature/MergeBranchHuy

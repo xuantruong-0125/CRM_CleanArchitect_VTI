@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -22,6 +23,20 @@ import java.time.Duration;
 @EnableCaching
 public class RedisConfig {
 
+    // ==========================================
+    // CẤU HÌNH 1: Sử dụng bộ nhớ RAM của Java (JVM) để làm cache.
+    // KHÔNG cần chạy Redis Server. Phù hợp phát triển local/offline.
+    // ==========================================
+    @Bean
+    public CacheManager cacheManager() {
+        return new ConcurrentMapCacheManager("activities", "activity_user_names");
+    }
+
+    // ==========================================
+    // CẤU HÌNH 2: Sử dụng Redis Server để làm cache (Môi trường Staging/Production).
+    // Để sử dụng: Comment Cấu hình 1 lại và mở comment Cấu hình 2 bên dưới.
+    // ==========================================
+    /*
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory factory) {
         // Cấu hình ObjectMapper để xử lý được Java 8 Date/Time (LocalDateTime)
@@ -49,4 +64,5 @@ public class RedisConfig {
                 .cacheDefaults(config)
                 .build();
     }
+    */
 }
