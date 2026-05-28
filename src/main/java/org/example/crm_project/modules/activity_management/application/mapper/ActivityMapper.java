@@ -8,7 +8,7 @@ import org.example.crm_project.modules.activity_management.domain.entity.Activit
 
 public class ActivityMapper {
 
-    public static ActivityResponse toResponse(Activity entity, String userName) {
+    public static ActivityResponse toResponse(Activity entity, String userName,String relatedToName) {
         if (entity == null)
             return null;
 
@@ -19,6 +19,7 @@ public class ActivityMapper {
                 .description(entity.getDescription())
                 .relatedToType(entity.getRelatedToType())
                 .relatedToId(entity.getRelatedToId())
+                .relatedToName(relatedToName)
                 // Đóng gói thành object {id, name}
                 .performedBy(new UserSummaryResponse(entity.getPerformedBy(), userName))
                 .startDate(entity.getStartDate())
