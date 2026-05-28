@@ -11,11 +11,10 @@ public class UpdateActivityRequest {
     private String subject;
     private String description;
     private ActivityStatus status; 
-    
-    // --- BỔ SUNG CÁC TRƯỜNG MỚI ĐỂ HỨNG DỮ LIỆU TỪ FRONTEND ---
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private LocalDateTime completedAt; 
     private String outcome;
-    private Boolean isImportant;
+    private Boolean important;
+    private Long performedBy;
 }

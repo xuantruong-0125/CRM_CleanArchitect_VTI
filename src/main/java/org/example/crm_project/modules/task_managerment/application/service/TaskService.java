@@ -1,5 +1,6 @@
 package org.example.crm_project.modules.task_managerment.application.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.example.crm_project.modules.task_managerment.application.dto.request.CreateTaskRequest;
@@ -15,7 +16,7 @@ public interface TaskService {
     TaskResponse getTaskById(Long id);
     void deleteTask(Long id);
     
-    Page<TaskResponse> getAllTasks(String subject, String status, String priority, int page, int size);
+    Page<TaskResponse> getAllTasks(String subject, String status, String priority, LocalDate fromDate, LocalDate toDate, int page, int size);
     
     List<TaskHistoryResponse> getTaskHistories(Long taskId);
 }

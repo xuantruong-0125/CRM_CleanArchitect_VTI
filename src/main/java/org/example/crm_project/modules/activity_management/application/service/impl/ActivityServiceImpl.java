@@ -60,15 +60,13 @@ public class ActivityServiceImpl implements ActivityService {
             var userDto = userService.getById(currentUserId);
             organizationId = userDto.getOrganizationId();
 
-            System.out.println("=== DEBUG: Lấy được Org ID = " + organizationId + " của User ID = " + currentUserId);
         } catch (Exception e) {
-            System.err.println("=== LỖI KHI LẤY USER THÔNG TIN ĐỂ ĐÓNG DẤU PHÒNG BAN: ===");
             e.printStackTrace();
         }
 
         // A. Lưu Activity trước để lấy được ID (notable_id)
         Activity activity = ActivityMapper.toEntity(request);
-        activity.assignPerformedBy(currentUserId);
+        activity.assignCreatedBy(currentUserId);
         activity.assignOrganizationId(organizationId);
         Activity savedActivity = repository.save(activity);
 
@@ -90,7 +88,6 @@ public class ActivityServiceImpl implements ActivityService {
     @CacheEvict(value = "activities", allEntries = true)
     @Transactional
     public ActivityResponse update(Long id, UpdateActivityRequest request) {
-        // Tìm hoạt động cũ, nếu không thấy thì báo lỗi
         Activity existingActivity = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy hoạt động ID: " + id));
 
@@ -113,12 +110,12 @@ public class ActivityServiceImpl implements ActivityService {
                 request.getSubject(),
                 request.getDescription(),
                 request.getStatus(),
-                request.getStartDate(), // Bổ sung
-                request.getEndDate(), // Bổ sung
-                request.getCompletedAt(), // Bổ sung
-                request.getOutcome(), // Bổ sung
-                request.getIsImportant() // Bổ sung
-        );
+                request.getStartDate(),
+                request.getEndDate(),
+                request.getCompletedAt(),
+                request.getOutcome(),
+                request.getImportant(),
+                request.getPerformedBy());
 
         Activity updatedActivity = repository.save(existingActivity);
         String userName = userProvider.getUserFullNameById(updatedActivity.getPerformedBy());

@@ -23,29 +23,19 @@ public class TaskResponse {
 
     private String relatedToType;
     private Long relatedToId;
+    private String relatedToName;
 
-    // private Long assignedTo;
-    // private String assigneeName;
-    // private Long assignedBy;
     private Long contactId;
-    // private String contactName;
-
+    private String contactName;
+    
     private SimpleUserResponse assignee;
 
-    // private SimpleContactResponse contact;
     @Data
     @Builder
     public static class SimpleUserResponse {
         private Long id;
         private String name;
     }
-
-    // @Data
-    // @Builder
-    // public static class SimpleContactResponse {
-    // private Long id;
-    // private String name;
-    // }
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startDate;

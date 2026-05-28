@@ -3,7 +3,6 @@ package org.example.crm_project.modules.note_management.Application.service.impl
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.example.crm_project.modules.activity_management.application.service.contracts.ActivityService;
 import org.example.crm_project.modules.activity_management.domain.repository.ActivityUserProvider;
 import org.example.crm_project.modules.auth.domain.entity.AuthUser;
 import org.example.crm_project.modules.note_management.Application.dto.request.CreateNoteRequest;
@@ -12,9 +11,7 @@ import org.example.crm_project.modules.note_management.Application.mapper.NoteMa
 import org.example.crm_project.modules.note_management.Application.service.contracts.NoteService;
 import org.example.crm_project.modules.note_management.Domain.entity.Note;
 
-import org.example.crm_project.modules.note_management.infrastructure.persistence.entity.NoteJpaEntity;
-import org.example.crm_project.modules.note_management.infrastructure.persistence.repository.NoteJpaRepository;
-import org.example.crm_project.modules.task_managerment.application.service.TaskService;
+
 import org.example.crm_project.modules.note_management.Domain.repository.NoteRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,25 +35,7 @@ public class NoteServiceImpl implements NoteService {
         throw new AccessDeniedException("Phiên đăng nhập không hợp lệ hoặc đã hết hạn!");
     }
 
-    @Override
-    public List<NoteResponse> getNotesByActivityId(Long activityId) {
-
-        // 1. Gọi Repository lấy Entity
-        List<Note> notes = noteRepository.findByNotableTypeAndNotableId("ACTIVITY", activityId);
-        // 2. Map sang DTO để trả về
-        return notes.stream()
-                .map(note -> {
-                    String creatorName = userProvider.getUserFullNameById(note.getCreatedBy());
-                    return NoteMapper.toResponse(note, creatorName);
-                })
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public void save(Note note) {
-        
-    }
-
+   
     @Override
     public void deleteNote(Long id) {
         Note note = noteRepository.findById(id)
@@ -83,24 +62,18 @@ public class NoteServiceImpl implements NoteService {
         Note savedNote = noteRepository.save(noteDomain);
         String creatorName = userProvider.getUserFullNameById(savedNote.getCreatedBy());
 
-        // 3. Trả về Response cho Frontend hiển thị ngay lập tức
-        return new NoteResponse(
-                savedNote.getId(),
-                savedNote.getContent(),
-                savedNote.getNotableType(),
-                savedNote.getNotableId(),
-                savedNote.getIsPrivate(),
-                savedNote.getCreatedBy(),
-                creatorName, 
-                java.time.LocalDateTime.now());
+        // 3. Trả về Response cho Frontend 
+        return NoteMapper.toResponse(savedNote, creatorName);
     }
-    @Override
-    public List<NoteResponse> getNotesByTaskId(Long taskId) {
+    
 
-        // Gọi Domain Repo với Type là "TASK" và ID của Task
-        List<Note> notes = noteRepository.findByNotableTypeAndNotableId("TASK", taskId);
+    @Override
+    public List<NoteResponse> getNotesByNotable(String notableType, Long notableId) {
         
-        // Map sang DTO để trả về
+        String safeType = notableType != null ? notableType.toUpperCase() : "";
+
+        List<Note> notes = noteRepository.findByNotableTypeAndNotableId(safeType, notableId);
+        
         return notes.stream()
                 .map(note -> {
                     String creatorName = userProvider.getUserFullNameById(note.getCreatedBy());

@@ -13,11 +13,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException ex) {
         Map<String, String> errorResponse = new HashMap<>();
         
-        // Trả về đúng câu thông báo mà file Task.java đã ném ra
         errorResponse.put("error", "Dữ liệu không hợp lệ");
         errorResponse.put("message", ex.getMessage()); 
         
-        // Bắn về HTTP 400 thay vì 500
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 

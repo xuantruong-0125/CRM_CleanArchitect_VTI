@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -23,11 +24,13 @@ import lombok.RequiredArgsConstructor;
 public class NoteController {
     private final NoteService noteService;
 
-    // API lấy danh sách ghi chú của Activity
-    @PreAuthorize("hasAuthority('ACTIVITY_VIEW')")
-    @GetMapping("/activity/{id}")
-    public ResponseEntity<List<NoteResponse>> getNotesByActivity(@PathVariable Long id) {
-        return ResponseEntity.ok(noteService.getNotesByActivityId(id));
+   @PreAuthorize("isAuthenticated()")
+    @GetMapping
+    public ResponseEntity<List<NoteResponse>> getNotes(
+            @RequestParam("notableType") String notableType,
+            @RequestParam("notableId") Long notableId) {
+            
+        return ResponseEntity.ok(noteService.getNotesByNotable(notableType, notableId));
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -44,10 +47,5 @@ public class NoteController {
         return ResponseEntity.ok(response);
     }
 
-    // API lấy danh sách ghi chú của Task
-    @PreAuthorize("hasAuthority('TASK_VIEW')")
-    @GetMapping("/task/{id}")
-    public ResponseEntity<List<NoteResponse>> getNotesByTask(@PathVariable Long id) {
-        return ResponseEntity.ok(noteService.getNotesByTaskId(id));
-    }
+    
 }

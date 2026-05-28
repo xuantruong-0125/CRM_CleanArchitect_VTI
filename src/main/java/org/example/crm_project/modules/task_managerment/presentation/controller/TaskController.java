@@ -1,5 +1,6 @@
 package org.example.crm_project.modules.task_managerment.presentation.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.example.crm_project.modules.task_managerment.application.dto.request.CreateTaskRequest;
@@ -9,6 +10,7 @@ import org.example.crm_project.modules.task_managerment.application.dto.response
 import org.example.crm_project.modules.task_managerment.application.service.TaskService;
 
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,9 +39,11 @@ public class TaskController {
             @RequestParam(required = false) String subject,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String priority,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<TaskResponse> responses = taskService.getAllTasks(subject, status, priority, page, size);
+        Page<TaskResponse> responses = taskService.getAllTasks(subject, status, priority, fromDate, toDate, page, size);
         return ResponseEntity.ok(responses);
     }
 

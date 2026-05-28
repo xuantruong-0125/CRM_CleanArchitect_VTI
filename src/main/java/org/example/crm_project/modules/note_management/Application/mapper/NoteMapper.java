@@ -8,12 +8,13 @@ import org.example.crm_project.modules.note_management.Domain.entity.Note;
 public class NoteMapper {
     public static Note toDomain(CreateActivityRequest request, Long activityId) {
         return new Note(
-                null, // id (chưa có vì đang đợi lưu DB)
-                request.getNoteContent(), // content
-                "ACTIVITY", // notableType
-                activityId, // notableId
-                false, // isPrivate
-                null // createdBy (có thể bổ sung sau từ UserContext)
+                null, 
+                request.getNoteContent(), 
+                "ACTIVITY", 
+                activityId, 
+                false,
+                null,
+                null
         );
     }
 
@@ -27,19 +28,19 @@ public class NoteMapper {
                 note.getIsPrivate(),
                 note.getCreatedBy(),
                 creatorName,
-                // Domain Model hiện tại chưa có trường createdDate
-            
-                null);
+                note.getCreatedDate()
+        );
     }
 
     public static Note toDomain(CreateNoteRequest request) {
         return new Note(
-                null, // ID null vì là tạo mới
+                null, 
                 request.getContent(),
                 request.getNotableType(),
                 request.getNotableId(),
-                request.getIsPrivate() != null ? request.getIsPrivate() : false, // Mặc định là false nếu không truyền
-                1L // Tạm hardcode người tạo là 1 (Sau này Duy nối Security vào sẽ lấy ID thật)
+                request.getPrivateNote() != null ? request.getPrivateNote() : false,
+                null,
+                null 
         );
     }
 

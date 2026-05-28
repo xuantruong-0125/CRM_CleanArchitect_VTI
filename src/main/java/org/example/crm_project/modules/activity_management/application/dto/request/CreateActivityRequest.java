@@ -5,6 +5,7 @@ import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import org.example.crm_project.modules.activity_management.domain.constant.ActivityStatus;
 import org.example.crm_project.modules.activity_management.domain.constant.ActivityType;
 import java.time.LocalDateTime;
 
@@ -30,4 +31,7 @@ public class CreateActivityRequest {
 
 
     private String noteContent;
+    private ActivityStatus status; 
+    
+    private Boolean important;
 }

@@ -1,5 +1,7 @@
 package org.example.crm_project.modules.task_managerment.infrastructure.persistence.repository;
 
+import java.time.LocalDateTime;
+
 import org.example.crm_project.modules.task_managerment.domain.constant.TaskPriority;
 import org.example.crm_project.modules.task_managerment.domain.constant.TaskStatus;
 import org.example.crm_project.modules.task_managerment.infrastructure.persistence.entity.TaskJpaEntity;
@@ -17,8 +19,9 @@ public interface JpaTaskRepository extends JpaRepository<TaskJpaEntity, Long> {
                         +
                         "(:status IS NULL OR t.status = :status) AND " +
                         "(:priority IS NULL OR t.priority = :priority) AND " +
-                        "( " +
-                        "   :scope = 'ALL' OR " +
+                        " (:fromDateTime IS NULL OR t.startDate >= :fromDateTime) AND " +
+                        " (:toDateTime IS NULL OR t.startDate <= :toDateTime) AND " +
+                        " ( :scope = 'ALL' OR " +
                         "   (:scope = 'OWN' AND (t.assignedTo = :currentUserId OR t.assignedBy = :currentUserId)) OR " +
                         "   (:scope = 'BRANCH' AND t.organizationId = :organizationId)" +
                         ")")
@@ -26,6 +29,8 @@ public interface JpaTaskRepository extends JpaRepository<TaskJpaEntity, Long> {
                         @Param("subject") String subject,
                         @Param("status") TaskStatus status,
                         @Param("priority") TaskPriority priority,
+                        @Param("fromDateTime") LocalDateTime fromDateTime,
+                        @Param("toDateTime") LocalDateTime toDateTime,
                         @Param("currentUserId") Long currentUserId,
                         @Param("organizationId") Long organizationId,
                         @Param("scope") String scope,

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Repository // BẮT BUỘC CÓ: Để Spring tạo Bean và Inject vào Service
+@Repository 
 @RequiredArgsConstructor
 public class NoteRepositoryAdapter implements NoteRepository {
 
@@ -29,6 +29,7 @@ public class NoteRepositoryAdapter implements NoteRepository {
         entity.setNotableId(note.getNotableId());
         entity.setIsPrivate(note.getIsPrivate());
         entity.setCreatedBy(note.getCreatedBy());
+        entity.setCreatedDate(note.getCreatedDate());
 
         // B. Lưu xuống DB qua Spring Data JPA
         NoteJpaEntity savedEntity = jpaRepository.save(entity);
@@ -56,15 +57,13 @@ public class NoteRepositoryAdapter implements NoteRepository {
     }
     @Override
     public Optional<Note> findById(Long id) {
-        // jpaRepository ở đây chính là NoteJpaRepository của Duy
+        // jpaRepository ở đây chính là NoteJpaRepository 
         return jpaRepository.findById(id)
                 .map(this::toDomain); 
     }
 
-    // ==========================================
-    // Hàm Helper nội bộ: Dùng để dịch từ Entity sang Domain
-    // Duy truyền theo đúng thứ tự Constructor đã viết ở class Note nhé!
-    // ==========================================
+
+    // Hàm Helper Dùng để dịch từ Entity sang Domain
     private Note toDomain(NoteJpaEntity entity) {
         return new Note(
             entity.getId(),
@@ -72,7 +71,8 @@ public class NoteRepositoryAdapter implements NoteRepository {
             entity.getNotableType(),
             entity.getNotableId(),
             entity.getIsPrivate(),
-            entity.getCreatedBy()
+            entity.getCreatedBy(),
+            entity.getCreatedDate()
         );
     }
 }
