@@ -8,7 +8,7 @@ import org.example.crm_project.modules.activity_management.domain.entity.Activit
 
 public class ActivityMapper {
 
-    public static ActivityResponse toResponse(Activity entity, String userName) {
+    public static ActivityResponse toResponse(Activity entity, String userName,String relatedToName) {
         if (entity == null)
             return null;
 
@@ -19,6 +19,7 @@ public class ActivityMapper {
                 .description(entity.getDescription())
                 .relatedToType(entity.getRelatedToType())
                 .relatedToId(entity.getRelatedToId())
+                .relatedToName(relatedToName)
                 // Đóng gói thành object {id, name}
                 .performedBy(new UserSummaryResponse(entity.getPerformedBy(), userName))
                 .startDate(entity.getStartDate())
@@ -32,13 +33,9 @@ public class ActivityMapper {
                 .build();
     }
 
-    // 2. CHIỀU ĐI: Request -> Entity (Dùng cho Thêm Mới)
     public static Activity toEntity(CreateActivityRequest request) {
         if (request == null)
             return null;
-
-        // Lưu ý: Các trường như 'id', 'completedAt', 'outcome'
-        // thường không được gửi từ Frontend khi tạo mới nên ta để null (hoặc bỏ qua)
         return Activity.builder()
                 .activityType(request.getActivityType())
                 .subject(request.getSubject())
@@ -48,9 +45,8 @@ public class ActivityMapper {
                 .performedBy(request.getPerformedBy())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
-                // Gán mặc định vì Request không có
-                .status(ActivityStatus.PLANNED)
-                .isImportant(false)
+                .status(request.getStatus() != null ? request.getStatus() : ActivityStatus.PLANNED)
+                .isImportant(request.getImportant() != null ? request.getImportant() : false)
                 .build();
     }
 }

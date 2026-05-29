@@ -57,20 +57,12 @@ public class CustomerAddressRepositoryImpl implements CustomerAddressRepository 
 
     @Override
     public void delete(Long id) {
-        Optional<CustomerAddressEntity> entity = jpaRepository.findById(id);
-        entity.ifPresent(e -> {
-            e.setDeletedAt(LocalDateTime.now());
-            jpaRepository.save(e);
-        });
+        jpaRepository.deleteById(id);
     }
 
     @Override
     public void deleteByCustomerId(Long customerId) {
-        List<CustomerAddressEntity> addresses = jpaRepository.findByCustomerId(customerId);
-        addresses.forEach(a -> {
-            a.setDeletedAt(LocalDateTime.now());
-            jpaRepository.save(a);
-        });
+        jpaRepository.deleteByCustomerId(customerId);
     }
 
     @Override
@@ -93,11 +85,6 @@ public class CustomerAddressRepositoryImpl implements CustomerAddressRepository 
         customerAddress.setFullAddress(entity.getFullAddress());
         customerAddress.setProvinceId(entity.getProvinceId());
         customerAddress.setIsPrimary(entity.getIsPrimary());
-        customerAddress.setCreatedBy(entity.getCreatedBy());
-        customerAddress.setUpdatedBy(entity.getUpdatedBy());
-        customerAddress.setCreatedAt(entity.getCreatedAt());
-        customerAddress.setUpdatedAt(entity.getUpdatedAt());
-        customerAddress.setDeletedAt(entity.getDeletedAt());
 
         return customerAddress;
     }
@@ -112,11 +99,6 @@ public class CustomerAddressRepositoryImpl implements CustomerAddressRepository 
         entity.setFullAddress(customerAddress.getFullAddress());
         entity.setProvinceId(customerAddress.getProvinceId());
         entity.setIsPrimary(customerAddress.getIsPrimary());
-        entity.setCreatedBy(customerAddress.getCreatedBy());
-        entity.setUpdatedBy(customerAddress.getUpdatedBy());
-        entity.setCreatedAt(customerAddress.getCreatedAt());
-        entity.setUpdatedAt(customerAddress.getUpdatedAt());
-        entity.setDeletedAt(customerAddress.getDeletedAt());
 
         return entity;
     }

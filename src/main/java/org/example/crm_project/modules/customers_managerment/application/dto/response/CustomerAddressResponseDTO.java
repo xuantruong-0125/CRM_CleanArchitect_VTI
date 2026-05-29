@@ -16,8 +16,6 @@ public class CustomerAddressResponseDTO {
     private String fullAddress;
     private Integer provinceId;
     private Boolean isPrimary;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     public CustomerAddressResponseDTO() {}
 

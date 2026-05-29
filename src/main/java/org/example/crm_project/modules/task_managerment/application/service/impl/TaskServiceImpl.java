@@ -1,10 +1,17 @@
 package org.example.crm_project.modules.task_managerment.application.service.impl;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.example.crm_project.modules.auth.domain.entity.AuthUser;
+import org.example.crm_project.modules.contacts_managerment.application.interfaces.ContactService;
+import org.example.crm_project.modules.contracts.application.service.ContractService;
+import org.example.crm_project.modules.customers_managerment.application.service.CustomerService;
+import org.example.crm_project.modules.leads_managerment.application.service.LeadService;
+import org.example.crm_project.modules.opportunity_management.application.service.OpportunityService;
 import org.example.crm_project.modules.system_managerment.application.service.UserService;
 import org.example.crm_project.modules.task_managerment.application.dto.request.CreateTaskRequest;
 import org.example.crm_project.modules.task_managerment.application.dto.request.UpdateTaskRequest;
@@ -44,6 +51,12 @@ public class TaskServiceImpl implements TaskService {
     private final ApplicationEventPublisher eventPublisher;
     private final JpaTaskHistoryRepository historyRepository;
 
+    private final ContactService contactService;
+    private final CustomerService customerService;
+    private final OpportunityService opportunityService;
+    private final LeadService leadService;
+    private final ContractService contractService;
+
     private AuthUser getCurrentAuthenticatedUser() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof AuthUser) {
@@ -53,7 +66,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Page<TaskResponse> getAllTasks(String subject, String status, String priority, int page, int size) {
+    public Page<TaskResponse> getAllTasks(String subject, String status, String priority, LocalDate fromDate,
+            LocalDate toDate, int page, int size) {
         // Tạo đối tượng yêu cầu phân trang của Spring
         Pageable pageable = PageRequest.of(page, size);
         AuthUser currentUser = getCurrentAuthenticatedUser();
@@ -68,9 +82,10 @@ public class TaskServiceImpl implements TaskService {
             organizationId = userDto.getOrganizationId();
         } catch (Exception e) {
         }
+        LocalDateTime fromDateTime = (fromDate != null) ? fromDate.atStartOfDay() : null;
+        LocalDateTime toDateTime = (toDate != null) ? toDate.atTime(LocalTime.MAX) : null;
 
-        // Lên Database lấy dữ liệu (Nó sẽ tự động trả về cục Page chứa Entity)
-        Page<Task> domainPage = taskRepository.searchTasks(subject, taskStatus, taskPriority,
+        Page<Task> domainPage = taskRepository.searchTasks(subject, taskStatus, taskPriority, fromDateTime, toDateTime,
                 currentUser.getId(), organizationId, currentUser.getScope(), pageable);
 
         // 2. Map từ Domain -> Response
@@ -79,6 +94,7 @@ public class TaskServiceImpl implements TaskService {
             // Lấy FullName từ UserService
             String fullName = null;
             if (domain.getAssignedTo() != null) {
+
                 try {
                     var userDto = userService.getById(domain.getAssignedTo());
                     fullName = userDto.getFullName();
@@ -86,10 +102,66 @@ public class TaskServiceImpl implements TaskService {
                     fullName = "User không tồn tại";
                 }
             }
-
-            // domain lúc này đã là class Task rồi, ném thẳng vào Mapper luôn
-            return TaskMapper.toResponse(domain, fullName);
+            String contactName = fetchContactName(domain.getContactId());
+            String relatedToName = fetchRelatedToName(domain.getRelatedToType(), domain.getRelatedToId());
+            return TaskMapper.toResponse(domain, fullName, contactName, relatedToName);
         });
+    }
+
+    private String fetchContactName(Long contactId) {
+        if (contactId == null)
+            return null;
+        try {
+            var contactResponse = contactService.getById(contactId);
+
+            return contactResponse.getFullName();
+        } catch (Exception e) {
+            return "Lỗi tải tên liên hệ";
+        }
+    }
+
+    private String fetchRelatedToName(String relatedToType, Long relatedToId) {
+        if (relatedToId == null || relatedToType == null || relatedToType.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            switch (relatedToType.toUpperCase()) {
+                case "CUSTOMER":
+                    var customer = customerService.getCustomerById(relatedToId);
+                    return customer.getName();
+
+                case "OPPORTUNITY":
+                    var opportunity = opportunityService.getById(relatedToId.intValue());
+                    return opportunity.getName();
+
+                case "LEAD":
+                    var lead = leadService.getById(relatedToId);
+                    String companyName = lead.getCompanyName();
+                    String contactName = lead.getContactName();
+
+                    if (companyName != null && !companyName.trim().isEmpty()) {
+                        return companyName;
+                    }
+
+                    if (contactName != null && !contactName.trim().isEmpty()) {
+                        return contactName;
+                    }
+                    return "Khách hàng tiềm năng vô danh";
+                case "CONTRACT":
+                    var contract = contractService.getContractById(relatedToId);
+                    String contractTitle = contract.getContractNumber();
+                    if (contract.getCustomerName() != null) {
+                        contractTitle += " (" + contract.getCustomerName() + ")";
+                    }
+
+                    return contractTitle;
+                default:
+                    return "Loại liên kết không hỗ trợ";
+            }
+        } catch (Exception e) {
+            return "Lỗi/Không tồn tại";
+        }
     }
 
     @Override
@@ -103,12 +175,12 @@ public class TaskServiceImpl implements TaskService {
             var userDto = userService.getById(assignedByUserId);
             organizationId = userDto.getOrganizationId();
         } catch (Exception e) {
-            organizationId = null;
+            e.printStackTrace();
         }
 
         // 1. Khởi tạo đối tượng Task (Domain) với dữ liệu từ Request
         Task newTask = new Task(
-                null, // ID tự tăng, để null
+                null,
                 request.getSubject(),
                 request.getDescription(),
                 request.getStartDate(),
@@ -123,11 +195,11 @@ public class TaskServiceImpl implements TaskService {
                 request.getRelatedToId(),
                 request.getAssignedTo(),
                 assignedByUserId,
-                request.getContactId(),
                 organizationId,
-                LocalDateTime.now(), // createdAt
-                LocalDateTime.now() // updatedAt
-        );
+                request.getContactId(),
+
+                LocalDateTime.now(),
+                LocalDateTime.now());
 
         // 2. Gọi Repository lưu xuống Database
         Task savedTask = taskRepository.save(newTask);
@@ -142,9 +214,11 @@ public class TaskServiceImpl implements TaskService {
                 assigneeName = "User không tồn tại";
             }
         }
+        String contactName = fetchContactName(savedTask.getContactId());
+        String relatedToName = fetchRelatedToName(savedTask.getRelatedToType(), savedTask.getRelatedToId());
 
         // 4. Map từ Domain -> Response và trả về
-        return TaskMapper.toResponse(savedTask, assigneeName);
+        return TaskMapper.toResponse(savedTask, assigneeName, contactName, relatedToName);
     }
 
     @Override
@@ -291,9 +365,11 @@ public class TaskServiceImpl implements TaskService {
                 assigneeName = "User không tồn tại";
             }
         }
+        String contactName = fetchContactName(savedTask.getContactId());
+        String relatedToName = fetchRelatedToName(savedTask.getRelatedToType(), savedTask.getRelatedToId());
 
         // 5. Trả về Frontend
-        return TaskMapper.toResponse(savedTask, assigneeName);
+        return TaskMapper.toResponse(savedTask, assigneeName, contactName, relatedToName);
     }
 
     @Override
@@ -328,9 +404,10 @@ public class TaskServiceImpl implements TaskService {
                 fullName = "User không tồn tại";
             }
         }
-
+        String contactName = fetchContactName(task.getContactId());
+        String relatedToName = fetchRelatedToName(task.getRelatedToType(), task.getRelatedToId());
         // 3. Trả về Response kèm tên
-        return TaskMapper.toResponse(task, fullName);
+        return TaskMapper.toResponse(task, fullName, contactName, relatedToName);
     }
 
     @Override
@@ -358,7 +435,7 @@ public class TaskServiceImpl implements TaskService {
     public List<TaskHistoryResponse> getTaskHistories(Long taskId) {
 
         this.getTaskById(taskId);
-        
+
         List<TaskHistoryEntity> historyEntities = historyRepository.findByTaskIdOrderByCreatedAtDesc(taskId);
 
         // 2. Dùng Stream để lặp qua từng dòng lịch sử và biến nó thành Response DTO

@@ -24,6 +24,7 @@ public class Activity {
     private LocalDateTime updatedAt;
 
     private Long organizationId;
+    private Long createdBy;
 
     public Activity() {
     }
@@ -51,16 +52,22 @@ public class Activity {
         this.updatedAt = updatedAt;
 
         this.organizationId = organizationId;
+
     }
+
     // ===== BUSINESS LOGIC =====
+    public void assignCreatedBy(Long userId) {
+        this.createdBy = userId;
+    }
 
     public void assignPerformedBy(Long userId) {
         this.performedBy = userId;
     }
+
     public void assignOrganizationId(Long organizationId) {
         this.organizationId = organizationId;
     }
-    
+
     public Long getOrganizationId() {
         return organizationId;
     }
@@ -156,6 +163,10 @@ public class Activity {
         return updatedAt;
     }
 
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
     // ===== CONSTRUCTOR DÙNG ĐỂ TẠO MỚI (Từ Service gọi) =====
     public Activity(ActivityType activityType, String subject, String description,
             String relatedToType,
@@ -200,6 +211,9 @@ public class Activity {
         private boolean isImportant;
 
         private Long organizationId;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
+        private Long createdBy;
 
         public Builder id(Long id) {
             this.id = id;
@@ -266,24 +280,39 @@ public class Activity {
             return this;
         }
 
-
         public Builder organizationId(Long organizationId) {
             this.organizationId = organizationId;
             return this;
         }
 
+        public Builder createdAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
+
+        public Builder updatedAt(LocalDateTime updatedAt) {
+            this.updatedAt = updatedAt;
+            return this;
+        }
+
+        public Builder createdBy(Long createdBy) {
+            this.createdBy = createdBy;
+            return this;
+        }
+
         public Activity build() {
-            // Sử dụng constructor đầy đủ tham số đã có sẵn của Duy để tạo đối tượng
-            return new Activity(id, activityType, subject, description, startDate, endDate,
+            Activity act = new Activity(id, activityType, subject, description, startDate, endDate,
                     completedAt, outcome, relatedToType, relatedToId,
-                    performedBy, status, isImportant, organizationId,null, null);
+                    performedBy, status, isImportant, organizationId, createdAt, updatedAt);
+            act.assignCreatedBy(this.createdBy);
+            return act;
         }
     }
 
     // ===== BUSINESS LOGIC =====
     public void updateInfo(String subject, String description, ActivityStatus status,
             LocalDateTime startDate, LocalDateTime endDate,
-            LocalDateTime completedAt, String outcome, Boolean important) {
+            LocalDateTime completedAt, String outcome, Boolean important,Long performedBy) {
 
         validateSubject(subject);
         this.subject = subject;
@@ -297,6 +326,8 @@ public class Activity {
             this.outcome = outcome;
         if (important != null)
             this.isImportant = important;
+        if (performedBy != null)
+            this.performedBy = performedBy;
 
         // 1. Cập nhật status trước
         if (status != null) {

@@ -10,7 +10,8 @@ import java.util.Arrays;
 public class ActivityJpaMapper {
 
     public static Activity toDomain(ActivityJpaEntity jpa) {
-        if (jpa == null) return null;
+        if (jpa == null)
+            return null;
 
         ActivityType type = Arrays.stream(ActivityType.values())
                 .filter(t -> t.getValue() == jpa.getActivityType())
@@ -19,12 +20,12 @@ public class ActivityJpaMapper {
 
         ActivityStatus status = jpa.getStatus() != null
                 ? Arrays.stream(ActivityStatus.values())
-                    .filter(s -> s.getValue() == jpa.getStatus())
-                    .findFirst()
-                    .orElse(ActivityStatus.PLANNED)
+                        .filter(s -> s.getValue() == jpa.getStatus())
+                        .findFirst()
+                        .orElse(ActivityStatus.PLANNED)
                 : ActivityStatus.PLANNED;
 
-        return new Activity(
+        Activity activity = new Activity(
                 jpa.getId(),
                 type,
                 jpa.getSubject(),
@@ -36,17 +37,19 @@ public class ActivityJpaMapper {
                 jpa.getRelatedToType(),
                 jpa.getRelatedToId(),
                 jpa.getPerformedBy(),
-                status, // Nhét status đã convert vào đây
+                status,
                 jpa.getIsImportant() != null ? jpa.getIsImportant() : false,
                 jpa.getOrganizationId(),
                 jpa.getCreatedAt(),
-                jpa.getUpdatedAt()
+                jpa.getUpdatedAt());
 
-        );
+        activity.assignCreatedBy(jpa.getCreatedBy());
+        return activity;
     }
 
     public static ActivityJpaEntity toJpa(Activity domain) {
-        if (domain == null) return null;
+        if (domain == null)
+            return null;
 
         return ActivityJpaEntity.builder()
                 .id(domain.getId())
@@ -60,8 +63,10 @@ public class ActivityJpaMapper {
                 .relatedToType(domain.getRelatedToType())
                 .relatedToId(domain.getRelatedToId())
                 .performedBy(domain.getPerformedBy())
+                .createdBy(domain.getCreatedBy())
                 .status(domain.getStatus() != null ? domain.getStatus().getValue() : null) // Dịch ngược ra số ở đây
                 .isImportant(domain.isImportant())
+                .organizationId(domain.getOrganizationId())
                 .build();
     }
 }

@@ -7,4 +7,5 @@ import org.example.crm_project.modules.contacts_managerment.application.dto.resp
 
 public interface ContactService extends BaseService<CreateContactRequest, UpdateContactRequest, ContactResponse, Long> {
     PageResponse<ContactResponse> search(String keyword, Boolean isPrimary, int page, int size);
+    java.util.List<ContactResponse> getByCustomerId(Long customerId);
 }

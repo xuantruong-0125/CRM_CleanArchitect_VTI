@@ -24,6 +24,8 @@ public class ActivityResponse implements Serializable{
     private String description;
     private String relatedToType;
     private Long relatedToId;
+    private String relatedToName;
+    
     private UserSummaryResponse performedBy;
     private LocalDateTime startDate;
     private LocalDateTime endDate;

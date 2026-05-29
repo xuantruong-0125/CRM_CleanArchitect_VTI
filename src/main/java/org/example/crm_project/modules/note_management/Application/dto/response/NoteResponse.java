@@ -7,29 +7,27 @@ public class NoteResponse {
     private String content;
     private String notableType;
     private Long notableId;
-    private Boolean isPrivate;
+    private Boolean privateNote;
     private Long createdBy;
-    private String creatorName; // Thêm tên người tạo để Frontend hiển thị cho đẹp
+    private String creatorName; 
     private LocalDateTime createdDate;
 
-    // Constructor không tham số
     public NoteResponse() {
     }
 
-    // Constructor đầy đủ tham số
     public NoteResponse(Long id, String content, String notableType, Long notableId,
-            Boolean isPrivate, Long createdBy, String creatorName, LocalDateTime createdDate) {
+            Boolean privateNote, Long createdBy, String creatorName, LocalDateTime createdDate) {
         this.id = id;
         this.content = content;
         this.notableType = notableType;
         this.notableId = notableId;
-        this.isPrivate = isPrivate;
+        this.privateNote = privateNote;
         this.createdBy = createdBy;
         this.creatorName = creatorName;
         this.createdDate = createdDate;
     }
 
-    // Các hàm Getter (Chỉ cần Getter để Jackson chuyển thành JSON gửi về FE)
+
     public Long getId() {
         return id;
     }
@@ -46,8 +44,8 @@ public class NoteResponse {
         return notableId;
     }
 
-    public Boolean getIsPrivate() {
-        return isPrivate;
+    public Boolean getPrivateNote() {
+        return privateNote;
     }
 
     public Long getCreatedBy() {

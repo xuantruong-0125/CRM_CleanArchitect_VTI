@@ -31,21 +31,6 @@ public class CustomerAddressEntity {
     @Column(name = "is_primary")
     private Boolean isPrimary = false;
     
-    @Transient
-    private LocalDateTime createdAt;
-    
-    @Transient
-    private LocalDateTime updatedAt;
-    
-    @Transient
-    private Long createdBy;
-    
-    @Transient
-    private Long updatedBy;
-    
-    @Transient
-    private LocalDateTime deletedAt;
-    
     @PrePersist
     protected void onCreate() {
         if (isPrimary == null) isPrimary = false;
@@ -73,19 +58,4 @@ public class CustomerAddressEntity {
     
     public Boolean getIsPrimary() { return isPrimary; }
     public void setIsPrimary(Boolean isPrimary) { this.isPrimary = isPrimary; }
-    
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-    
-    public Long getCreatedBy() { return createdBy; }
-    public void setCreatedBy(Long createdBy) { this.createdBy = createdBy; }
-    
-    public Long getUpdatedBy() { return updatedBy; }
-    public void setUpdatedBy(Long updatedBy) { this.updatedBy = updatedBy; }
-    
-    public LocalDateTime getDeletedAt() { return deletedAt; }
-    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
 }

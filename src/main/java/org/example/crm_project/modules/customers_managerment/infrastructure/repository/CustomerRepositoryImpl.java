@@ -94,11 +94,6 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     @Override
-    public long count() {
-        return jpaRepository.count();
-    }
-
-    @Override
     public List<Customer> findByIds(Collection<Long> ids) {
         if (ids == null || ids.isEmpty()) return List.of();
         return jpaRepository.findByIdIn(ids).stream()
@@ -111,6 +106,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         return jpaRepository.findAllActiveList().stream()
                 .map(this::entityToDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public long count() {
+        return jpaRepository.countByDeletedAtIsNull();
     }
 
     @Override

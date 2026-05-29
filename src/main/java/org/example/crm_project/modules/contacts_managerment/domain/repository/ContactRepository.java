@@ -6,4 +6,5 @@ import java.util.List;
 public interface ContactRepository extends BaseRepository<Contact, Long> {
     List<Contact> search(String keyword, Boolean isPrimary, int page, int size);
     long countSearch(String keyword, Boolean isPrimary);
+    List<Contact> findByCustomerId(Long customerId);
 }

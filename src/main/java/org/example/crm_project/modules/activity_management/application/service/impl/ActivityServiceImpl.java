@@ -14,9 +14,13 @@ import org.example.crm_project.modules.activity_management.domain.repository.Act
 import org.example.crm_project.modules.activity_management.domain.repository.PagedResult;
 import org.example.crm_project.modules.activity_management.domain.repository.Pagination;
 import org.example.crm_project.modules.auth.domain.entity.AuthUser;
+import org.example.crm_project.modules.contacts_managerment.application.interfaces.ContactService;
+import org.example.crm_project.modules.customers_managerment.application.service.CustomerService;
+import org.example.crm_project.modules.leads_managerment.application.service.LeadService;
 import org.example.crm_project.modules.note_management.Application.mapper.NoteMapper;
 import org.example.crm_project.modules.note_management.Domain.entity.Note;
 import org.example.crm_project.modules.note_management.Domain.repository.NoteRepository;
+import org.example.crm_project.modules.opportunity_management.application.service.OpportunityService;
 import org.example.crm_project.modules.system_managerment.application.service.UserService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
@@ -39,6 +43,11 @@ public class ActivityServiceImpl implements ActivityService {
     private final NoteRepository noteRepository;
     private final UserService userService;
 
+    private final ContactService contactService;
+    private final CustomerService customerService;
+    private final OpportunityService opportunityService;
+    private final LeadService leadService;
+
     private AuthUser getCurrentAuthenticatedUser() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof AuthUser) {
@@ -59,12 +68,14 @@ public class ActivityServiceImpl implements ActivityService {
         try {
             var userDto = userService.getById(currentUserId);
             organizationId = userDto.getOrganizationId();
+
         } catch (Exception e) {
+            e.printStackTrace();
         }
 
         // A. Lưu Activity trước để lấy được ID (notable_id)
         Activity activity = ActivityMapper.toEntity(request);
-        activity.assignPerformedBy(currentUserId);
+        activity.assignCreatedBy(currentUserId);
         activity.assignOrganizationId(organizationId);
         Activity savedActivity = repository.save(activity);
 
@@ -79,14 +90,14 @@ public class ActivityServiceImpl implements ActivityService {
 
         // C. Trả về Response như cũ
         String userName = userProvider.getUserFullNameById(savedActivity.getPerformedBy());
-        return ActivityMapper.toResponse(savedActivity, userName);
+        String relatedToName = fetchRelatedToName(savedActivity.getRelatedToType(), savedActivity.getRelatedToId());
+        return ActivityMapper.toResponse(savedActivity, userName, relatedToName);
     }
 
     // 2. CẬP NHẬT
     @CacheEvict(value = "activities", allEntries = true)
     @Transactional
     public ActivityResponse update(Long id, UpdateActivityRequest request) {
-        // Tìm hoạt động cũ, nếu không thấy thì báo lỗi
         Activity existingActivity = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy hoạt động ID: " + id));
 
@@ -109,17 +120,18 @@ public class ActivityServiceImpl implements ActivityService {
                 request.getSubject(),
                 request.getDescription(),
                 request.getStatus(),
-                request.getStartDate(), // Bổ sung
-                request.getEndDate(), // Bổ sung
-                request.getCompletedAt(), // Bổ sung
-                request.getOutcome(), // Bổ sung
-                request.getIsImportant() // Bổ sung
-        );
+                request.getStartDate(),
+                request.getEndDate(),
+                request.getCompletedAt(),
+                request.getOutcome(),
+                request.getImportant(),
+                request.getPerformedBy());
 
         Activity updatedActivity = repository.save(existingActivity);
         String userName = userProvider.getUserFullNameById(updatedActivity.getPerformedBy());
+        String relatedToName = fetchRelatedToName(updatedActivity.getRelatedToType(), updatedActivity.getRelatedToId());
 
-        return ActivityMapper.toResponse(updatedActivity, userName);
+        return ActivityMapper.toResponse(updatedActivity, userName, relatedToName);
     }
 
     // 3. XÓA
@@ -166,7 +178,8 @@ public class ActivityServiceImpl implements ActivityService {
         List<ActivityResponse> responses = pagedActivities.content().stream()
                 .map(activity -> {
                     String userName = userProvider.getUserFullNameById(activity.getPerformedBy());
-                    return ActivityMapper.toResponse(activity, userName);
+                    String relatedToName = fetchRelatedToName(activity.getRelatedToType(), activity.getRelatedToId());
+                    return ActivityMapper.toResponse(activity, userName, relatedToName);
                 })
                 .toList();
 
@@ -196,8 +209,9 @@ public class ActivityServiceImpl implements ActivityService {
         }
 
         String employeeName = userProvider.getUserFullNameById(activity.getPerformedBy());
+        String relatedToName = fetchRelatedToName(activity.getRelatedToType(), activity.getRelatedToId());
 
-        return ActivityMapper.toResponse(activity, employeeName);
+        return ActivityMapper.toResponse(activity, employeeName, relatedToName);
     }
 
     public PagedResult<ActivityResponse> filter(ActivitySearchCriteria criteria, Pagination pagination) {
@@ -218,7 +232,8 @@ public class ActivityServiceImpl implements ActivityService {
         List<ActivityResponse> responses = pagedActivities.content().stream()
                 .map(activity -> {
                     String userName = userProvider.getUserFullNameById(activity.getPerformedBy());
-                    return ActivityMapper.toResponse(activity, userName);
+                    String relatedToName = fetchRelatedToName(activity.getRelatedToType(), activity.getRelatedToId());
+                    return ActivityMapper.toResponse(activity, userName, relatedToName);
                 })
                 .toList();
 
@@ -260,5 +275,54 @@ public class ActivityServiceImpl implements ActivityService {
         }
         // Duy dùng phương thức InBatch để xóa cực nhanh cho danh sách lớn
         repository.deleteAllByIdInBatch(ids);
+    }
+
+    private String fetchRelatedToName(String relatedToType, Long relatedToId) {
+        if (relatedToId == null || relatedToType == null || relatedToType.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            switch (relatedToType.toUpperCase()) {
+                case "CUSTOMER":
+                    var customer = customerService.getCustomerById(relatedToId);
+                    return customer.getName();
+
+                case "OPPORTUNITY":
+                    var opportunity = opportunityService.getById(relatedToId.intValue());
+                    return opportunity.getName();
+
+                case "LEAD":
+                    var lead = leadService.getById(relatedToId);
+                    String companyName = lead.getCompanyName();
+                    String contactName = lead.getContactName();
+
+                    if (companyName != null && !companyName.trim().isEmpty()) {
+                        return companyName;
+                    }
+
+                    if (contactName != null && !contactName.trim().isEmpty()) {
+                        return contactName;
+                    }
+                    return "Khách hàng tiềm năng vô danh";
+
+                case "CONTACT":
+                    var contact = contactService.getById(relatedToId);
+                    return contact.getFullName();
+
+                // case "CONTRACT":
+                // var contract = contractService.getContractById(relatedToId);
+                // String contractTitle = contract.getContractNumber();
+                // if (contract.getCustomerName() != null) {
+                // contractTitle += " (" + contract.getCustomerName() + ")";
+                // }
+                // return contractTitle;
+
+                default:
+                    return "Loại liên kết không hỗ trợ";
+            }
+        } catch (Exception e) {
+            return "Lỗi/Không tồn tại";
+        }
     }
 }

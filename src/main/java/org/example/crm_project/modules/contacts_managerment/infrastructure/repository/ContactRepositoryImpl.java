@@ -77,4 +77,12 @@ public class ContactRepositoryImpl implements ContactRepository {
     public long countSearch(String keyword, Boolean isPrimary) {
         return contactJpaRepository.countSearchContacts(keyword, isPrimary);
     }
+
+    @Override
+    public List<Contact> findByCustomerId(Long customerId) {
+        return contactJpaRepository.findActiveByCustomerId(customerId)
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
 }

@@ -1,5 +1,7 @@
 package org.example.crm_project.modules.task_managerment.domain.repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.example.crm_project.modules.task_managerment.domain.constant.TaskPriority;
@@ -21,6 +23,8 @@ public interface TaskRepository {
             String subject,
             TaskStatus status,
             TaskPriority priority,
+            LocalDateTime fromDateTime,
+            LocalDateTime toDateTime,
             Long currentUserId,
             Long organizationId,
             String scope,

@@ -10,13 +10,13 @@ public class CreateTaskRequest {
     private String subject;
     private String description;
     private LocalDateTime startDate;
-    private LocalDateTime dueDate; // Bắt buộc phải có
+    private LocalDateTime dueDate; 
     private TaskPriority priority;
     
     // Liên kết dữ liệu
     private String relatedToType;
     private Long relatedToId;
-    private Long assignedTo; // Người được giao việc
+    private Long assignedTo;
     private Long contactId;
 
 }
