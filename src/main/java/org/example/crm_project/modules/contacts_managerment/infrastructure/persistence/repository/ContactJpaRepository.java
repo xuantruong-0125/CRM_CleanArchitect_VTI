@@ -38,4 +38,7 @@ public interface ContactJpaRepository extends JpaRepository<ContactEntity, Long>
            "LOWER(c.phone) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     long countSearchContacts(@Param("keyword") String keyword, 
                              @Param("isPrimary") Boolean isPrimary);
+
+    @Query("SELECT c FROM ContactEntity c WHERE c.isActive = true AND c.customer.id = :customerId ORDER BY c.createdAt DESC")
+    List<ContactEntity> findActiveByCustomerId(@Param("customerId") Long customerId);
 }

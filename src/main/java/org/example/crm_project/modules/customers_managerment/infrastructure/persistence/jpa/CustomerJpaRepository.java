@@ -95,4 +95,6 @@ public interface CustomerJpaRepository extends JpaRepository<CustomerEntity, Lon
      */
     @Query("SELECT c FROM CustomerEntity c WHERE c.deletedAt IS NULL AND (LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(c.customerCode) LIKE LOWER(CONCAT('%', :keyword, '%'))) ORDER BY c.name ASC")
     List<CustomerEntity> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    long countByDeletedAtIsNull();
 }

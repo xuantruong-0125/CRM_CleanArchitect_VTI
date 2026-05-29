@@ -36,7 +36,6 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
     @Override
     public CustomerAddressResponseDTO createCustomerAddress(CreateCustomerAddressDTO createDTO) {
         CustomerAddress customerAddress = customerAddressMapper.toEntity(createDTO);
-        customerAddress.setCreatedAt(LocalDateTime.now());
 
         // Enforce business rule: only one address can be primary
         if (Boolean.TRUE.equals(customerAddress.getIsPrimary())) {
@@ -86,7 +85,6 @@ public class CustomerAddressServiceImpl implements CustomerAddressService {
         boolean wasPrimary = Boolean.TRUE.equals(customerAddress.getIsPrimary());
 
         customerAddressMapper.updateEntityFromDTO(customerAddress, createDTO);
-        customerAddress.setUpdatedAt(LocalDateTime.now());
 
         // Enforce business rule: only one address can be primary
         if (Boolean.TRUE.equals(customerAddress.getIsPrimary()) && !wasPrimary) {

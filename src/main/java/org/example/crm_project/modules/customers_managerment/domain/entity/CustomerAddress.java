@@ -14,12 +14,6 @@ public class CustomerAddress {
     private Integer provinceId;
     private Boolean isPrimary;
 
-    private Long createdBy;
-    private Long updatedBy;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
-
     private Customer customer;
 
     // Constructor
@@ -31,19 +25,16 @@ public class CustomerAddress {
         this.addressType = addressType;
         this.fullAddress = fullAddress;
         this.isPrimary = false;
-        this.createdAt = LocalDateTime.now();
     }
 
     // ===== DOMAIN BEHAVIORS =====
 
     public void markAsPrimary() {
         this.isPrimary = true;
-        this.updatedAt = LocalDateTime.now();
     }
 
     public void demoteFromPrimary() {
         this.isPrimary = false;
-        this.updatedAt = LocalDateTime.now();
     }
 
     public void updateInfo(String addressType, String fullAddress, Integer provinceId, Boolean isPrimary) {
@@ -53,7 +44,6 @@ public class CustomerAddress {
         if (isPrimary != null) {
             this.isPrimary = isPrimary;
         }
-        this.updatedAt = LocalDateTime.now();
     }
 
     // Getters and Setters
@@ -113,18 +103,4 @@ public class CustomerAddress {
         this.customer = customer;
     }
 
-    public Long getCreatedBy() { return createdBy; }
-    public void setCreatedBy(Long createdBy) { this.createdBy = createdBy; }
-
-    public Long getUpdatedBy() { return updatedBy; }
-    public void setUpdatedBy(Long updatedBy) { this.updatedBy = updatedBy; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-
-    public LocalDateTime getDeletedAt() { return deletedAt; }
-    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
 }

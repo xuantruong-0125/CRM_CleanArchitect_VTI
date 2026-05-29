@@ -94,4 +94,11 @@ public class ContactServiceImpl implements ContactService {
                 .collect(Collectors.toList());
         return PageResponse.of(contactResponses, page, size, totalItems);
     }
+
+    @Override
+    public List<ContactResponse> getByCustomerId(Long customerId) {
+        return contactRepository.findByCustomerId(customerId).stream()
+                .map(contactMapper::toResponse)
+                .collect(Collectors.toList());
+    }
 }

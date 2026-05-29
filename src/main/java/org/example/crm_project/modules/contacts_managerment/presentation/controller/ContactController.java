@@ -64,4 +64,10 @@ public class ContactController {
         PageResponse<ContactResponse> response = contactService.search(keyword, isPrimary, page, size);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<ApiResponse<List<ContactResponse>>> getContactsByCustomerId(@PathVariable Long customerId) {
+        List<ContactResponse> response = contactService.getByCustomerId(customerId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 }

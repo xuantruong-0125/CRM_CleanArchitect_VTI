@@ -35,8 +35,6 @@ public class CustomerAddressMapper {
         dto.setFullAddress(customerAddress.getFullAddress());
         dto.setProvinceId(customerAddress.getProvinceId());
         dto.setIsPrimary(customerAddress.getIsPrimary());
-        dto.setCreatedAt(customerAddress.getCreatedAt());
-        dto.setUpdatedAt(customerAddress.getUpdatedAt());
 
         return dto;
     }
