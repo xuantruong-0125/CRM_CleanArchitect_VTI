@@ -289,7 +289,7 @@ public class JdbcReportingRepository implements ReportingRepository {
     }
 
     private BigDecimal countActivities(Long userId, int activityType, String start, String end) {
-        String sql = "SELECT COUNT(*) FROM activities WHERE performed_by = ? AND activity_type = ? AND created_at >= ? AND created_at <= ? AND deleted_at IS NULL";
+        String sql = "SELECT COUNT(*) FROM activities WHERE performed_by = ? AND activity_type = ? AND start_date >= ? AND start_date <= ? AND deleted_at IS NULL";
         Long count = jdbcTemplate.queryForObject(sql, Long.class, userId, activityType, start, end + " 23:59:59");
         return BigDecimal.valueOf(count != null ? count : 0);
     }
