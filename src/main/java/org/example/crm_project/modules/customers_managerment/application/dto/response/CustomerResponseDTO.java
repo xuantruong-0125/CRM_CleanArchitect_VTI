@@ -2,6 +2,7 @@ package org.example.crm_project.modules.customers_managerment.application.dto.re
 
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -24,6 +25,7 @@ public class CustomerResponseDTO {
     private String statusName;
     private String tierName;
     private Long assignedTo;
+    private LocalDate establishedDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
