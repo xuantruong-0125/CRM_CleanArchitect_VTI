@@ -15,22 +15,25 @@ public interface LeadRepository {
 
     List<Lead> findAll();
 
-        LeadPageResult<Lead> findAll(int page, int size, String sortBy, String sortDir);
+        LeadPageResult<Lead> findAll(Long currentUserId, Long userOrganizationId, String scope, int page, int size, String sortBy, String sortDir);
 
     List<Lead> search(Integer provinceId, Long organizationId, String phone, String email, Long statusId, Long sourceId);
 
-        LeadPageResult<Lead> search(
+    LeadPageResult<Lead> search(
             Integer provinceId,
             Long organizationId,
             String phone,
             String email,
             Long statusId,
             Long sourceId,
+            Long currentUserId,
+            Long userOrganizationId,
+            String scope,
             int page,
             int size,
             String sortBy,
             String sortDir
-        );
+    );
 
     LeadConversionResult convert(Long leadId, Long userId);
 

@@ -2,16 +2,25 @@ package org.example.crm_project.modules.customers_managerment.presentation.contr
 
 import org.example.crm_project.modules.customers_managerment.application.dto.request.CreateAttachmentDTO;
 import org.example.crm_project.modules.customers_managerment.application.dto.response.AttachmentResponseDTO;
+import org.example.crm_project.modules.customers_managerment.application.dto.response.UploadAttachmentResponseDTO;
 import org.example.crm_project.modules.customers_managerment.application.service.AttachmentService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -27,6 +36,48 @@ public class AttachmentController {
 
     public AttachmentController(AttachmentService attachmentService) {
         this.attachmentService = attachmentService;
+    }
+
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyAuthority('CUSTOMER_CREATE', 'CUSTOMER_UPDATE')")
+    public ResponseEntity<UploadAttachmentResponseDTO> uploadFile(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("File tải lên không được để trống");
+        }
+
+        try {
+            String originalFilename = file.getOriginalFilename();
+            String fileName = originalFilename != null ? originalFilename : "unknown";
+            String extension = "";
+            int dotIndex = fileName.lastIndexOf(".");
+            if (dotIndex > 0) {
+                extension = fileName.substring(dotIndex);
+                fileName = fileName.substring(0, dotIndex);
+            }
+
+            String timeStamp = LocalDateTime.now()
+                    .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+
+            String newFileName = timeStamp + "_" + fileName + extension;
+            Path path = Paths.get("uploads/" + newFileName);
+
+            Files.createDirectories(path.getParent());
+            Files.write(path, file.getBytes());
+
+            String fileUrl = "/uploads/" + newFileName;
+            String fileType = extension.startsWith(".") ? extension.substring(1) : extension;
+
+            UploadAttachmentResponseDTO response = UploadAttachmentResponseDTO.builder()
+                    .fileName(originalFilename)
+                    .fileType(fileType)
+                    .fileSize(file.getSize())
+                    .filePath(fileUrl)
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IOException ex) {
+            throw new RuntimeException("Lỗi khi lưu file: " + ex.getMessage());
+        }
     }
 
     @PostMapping

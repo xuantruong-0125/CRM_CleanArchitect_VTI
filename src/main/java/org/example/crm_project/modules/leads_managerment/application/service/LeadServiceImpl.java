@@ -16,6 +16,10 @@ import org.example.crm_project.modules.leads_managerment.domain.exception.Invali
 import org.example.crm_project.modules.leads_managerment.domain.exception.LeadNotFoundException;
 import org.example.crm_project.modules.leads_managerment.domain.repository.LeadReferenceRepository;
 import org.example.crm_project.modules.leads_managerment.domain.repository.LeadRepository;
+import org.example.crm_project.modules.auth.domain.entity.AuthUser;
+import org.example.crm_project.modules.system_managerment.application.service.UserService;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -57,6 +61,7 @@ public class LeadServiceImpl implements LeadService {
 
     private final LeadRepository leadRepository;
     private final LeadReferenceRepository leadReferenceRepository;
+    private final UserService userService;
 
     @Override
     public LeadResponse create(CreateLeadRequest request) {
@@ -67,6 +72,12 @@ public class LeadServiceImpl implements LeadService {
         lead.setUpdatedAt(LocalDateTime.now());
         lead.setIsConverted(Boolean.FALSE);
 
+        AuthUser currentUser = getCurrentAuthenticatedUser();
+        lead.setCreatedBy(currentUser.getId());
+        if (lead.getOrganizationId() == null) {
+            lead.setOrganizationId(getUserOrganizationId(currentUser.getId()));
+        }
+
         return LeadMapper.toResponse(leadRepository.save(lead));
     }
 
@@ -76,9 +87,12 @@ public class LeadServiceImpl implements LeadService {
         validateUpdateRequest(request);
 
         Lead existingLead = getExistingLead(id);
+        validateScopeAccess(existingLead);
         validateLeadNotConverted(existingLead, "update");
         Lead updatedLead = merge(existingLead, request);
         updatedLead.setUpdatedAt(LocalDateTime.now());
+        AuthUser currentUser = getCurrentAuthenticatedUser();
+        updatedLead.setUpdatedBy(currentUser.getId());
 
         return LeadMapper.toResponse(leadRepository.save(updatedLead));
     }
@@ -87,15 +101,22 @@ public class LeadServiceImpl implements LeadService {
     @Transactional(readOnly = true)
     public LeadResponse getById(Long id) {
         validateId(id);
-        return LeadMapper.toResponse(getExistingLead(id));
+        Lead existingLead = getExistingLead(id);
+        validateScopeAccess(existingLead);
+        return LeadMapper.toResponse(existingLead);
     }
 
     @Override
     @Transactional(readOnly = true)
     public LeadPageResponse<LeadResponse> getAll(Integer page, Integer size, String sortBy, String sortDir) {
         PaginationOptions options = normalizePagination(page, size, sortBy, sortDir);
+        AuthUser currentUser = getCurrentAuthenticatedUser();
+        Long orgId = getUserOrganizationId(currentUser.getId());
 
         LeadPageResult<Lead> pageResult = leadRepository.findAll(
+                currentUser.getId(),
+                orgId,
+                currentUser.getScope(),
                 options.page(),
                 options.size(),
                 options.sortBy(),
@@ -120,23 +141,29 @@ public class LeadServiceImpl implements LeadService {
         validateSearchEmail(request.getEmail());
 
         PaginationOptions options = normalizePagination(
-            request.getPage(),
-            request.getSize(),
-            request.getSortBy(),
-            request.getSortDir()
+                request.getPage(),
+                request.getSize(),
+                request.getSortBy(),
+                request.getSortDir()
         );
 
+        AuthUser currentUser = getCurrentAuthenticatedUser();
+        Long orgId = getUserOrganizationId(currentUser.getId());
+
         LeadPageResult<Lead> pageResult = leadRepository.search(
-            request.getProvinceId(),
-            request.getOrganizationId(),
-            normalizeText(request.getPhone()),
-            normalizeText(request.getEmail()),
-            request.getStatusId(),
-            request.getSourceId(),
-            options.page(),
-            options.size(),
-            options.sortBy(),
-            options.sortDir()
+                request.getProvinceId(),
+                request.getOrganizationId(),
+                normalizeText(request.getPhone()),
+                normalizeText(request.getEmail()),
+                request.getStatusId(),
+                request.getSourceId(),
+                currentUser.getId(),
+                orgId,
+                currentUser.getScope(),
+                options.page(),
+                options.size(),
+                options.sortBy(),
+                options.sortDir()
         );
 
         return toLeadPageResponse(pageResult);
@@ -148,6 +175,7 @@ public class LeadServiceImpl implements LeadService {
         validateConvertRequest(request);
 
         Lead existingLead = getExistingLead(id);
+        validateScopeAccess(existingLead);
         validateLeadNotConverted(existingLead, "convert again");
 
         LeadConversionResult conversionResult = leadRepository.convert(id, request.getUserId());
@@ -165,6 +193,7 @@ public class LeadServiceImpl implements LeadService {
     public void delete(Long id) {
         validateId(id);
         Lead existingLead = getExistingLead(id);
+        validateScopeAccess(existingLead);
         validateLeadNotConverted(existingLead, "delete");
         leadRepository.deleteById(id);
     }
@@ -461,6 +490,39 @@ public class LeadServiceImpl implements LeadService {
         }
 
         return new PaginationOptions(normalizedPage, normalizedSize, normalizedSortBy, normalizedSortDir);
+    }
+
+    private AuthUser getCurrentAuthenticatedUser() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof AuthUser) {
+            return (AuthUser) auth.getPrincipal();
+        }
+        throw new AccessDeniedException("Phiên đăng nhập không hợp lệ hoặc đã hết hạn!");
+    }
+
+    private Long getUserOrganizationId(Long userId) {
+        try {
+            var userDto = userService.getById(userId);
+            return userDto.getOrganizationId();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void validateScopeAccess(Lead lead) {
+        AuthUser currentUser = getCurrentAuthenticatedUser();
+        String scope = currentUser.getScope();
+        if ("OWN".equalsIgnoreCase(scope)) {
+            if (!currentUser.getId().equals(lead.getAssignedTo()) &&
+                    !currentUser.getId().equals(lead.getCreatedBy())) {
+                throw new AccessDeniedException("Bạn không có quyền truy cập Lead này!");
+            }
+        } else if ("BRANCH".equalsIgnoreCase(scope) || "DEPARTMENT".equalsIgnoreCase(scope) || "TEAM".equalsIgnoreCase(scope)) {
+            Long userOrgId = getUserOrganizationId(currentUser.getId());
+            if (lead.getOrganizationId() == null || !lead.getOrganizationId().equals(userOrgId)) {
+                throw new AccessDeniedException("Bạn không có quyền truy cập Lead của phòng ban khác!");
+            }
+        }
     }
 
     private String normalizeText(String value) {

@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 
 /**
  * Repository Implementation: CustomerRepositoryImpl
@@ -61,8 +63,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     @Override
-    public Page<Customer> findAll(Pageable pageable) {
-        Page<CustomerEntity> page = jpaRepository.findAllActive(pageable);
+    public Page<Customer> findAll(Long currentUserId, Long userOrganizationId, String scope, Pageable pageable) {
+        Specification<CustomerEntity> spec = buildSearchSpecification(null, null, null, null, null, null, null, currentUserId, userOrganizationId, scope);
+        Page<CustomerEntity> page = jpaRepository.findAll(spec, pageable);
         return page.map(this::entityToDomain);
     }
 
@@ -122,7 +125,15 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     @Override
-    public Page<Customer> search(String keyword, String type, Long statusId, Long tierId, String email, String phone, Long assignedTo, Pageable pageable) {
+    public Page<Customer> search(String keyword, String type, Long statusId, Long tierId, String email, String phone, Long assignedTo, Long currentUserId, Long userOrganizationId, String scope, Pageable pageable) {
+        Specification<CustomerEntity> spec = buildSearchSpecification(keyword, type, statusId, tierId, email, phone, assignedTo, currentUserId, userOrganizationId, scope);
+        return jpaRepository.findAll(spec, pageable).map(this::entityToDomain);
+    }
+
+    private Specification<CustomerEntity> buildSearchSpecification(
+            String keyword, String type, Long statusId, Long tierId, String email, String phone, Long assignedTo,
+            Long currentUserId, Long userOrganizationId, String scope
+    ) {
         Specification<CustomerEntity> spec = (root, query, cb) -> cb.isNull(root.get("deletedAt"));
 
         if (StringUtils.hasText(keyword)) {
@@ -157,7 +168,38 @@ public class CustomerRepositoryImpl implements CustomerRepository {
             spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("phone")), normalizedPhone));
         }
 
-        return jpaRepository.findAll(spec, pageable).map(this::entityToDomain);
+        // Apply row-level security scope filters
+        if (StringUtils.hasText(scope)) {
+            if ("OWN".equalsIgnoreCase(scope) && currentUserId != null) {
+                spec = spec.and((root, query, cb) ->
+                        cb.or(
+                                cb.equal(root.get("assignedTo"), currentUserId),
+                                cb.equal(root.get("createdBy"), currentUserId)
+                        )
+                );
+            } else if (("BRANCH".equalsIgnoreCase(scope) || "DEPARTMENT".equalsIgnoreCase(scope) || "TEAM".equalsIgnoreCase(scope)) && userOrganizationId != null) {
+                spec = spec.and((root, query, cb) -> {
+                    Subquery<Long> subquery = query.subquery(Long.class);
+                    Root<org.example.crm_project.modules.system_managerment.infrastructure.persistence.entity.UserEntity> userRoot =
+                            subquery.from(org.example.crm_project.modules.system_managerment.infrastructure.persistence.entity.UserEntity.class);
+                    subquery.select(userRoot.get("id"))
+                            .where(
+                                    cb.equal(userRoot.get("organizationId"), userOrganizationId),
+                                    cb.isNull(userRoot.get("deletedAt"))
+                            );
+
+                    return cb.or(
+                            root.get("assignedTo").in(subquery),
+                            cb.and(
+                                    cb.isNull(root.get("assignedTo")),
+                                    root.get("createdBy").in(subquery)
+                            )
+                    );
+                });
+            }
+        }
+
+        return spec;
     }
 
     // Helper methods

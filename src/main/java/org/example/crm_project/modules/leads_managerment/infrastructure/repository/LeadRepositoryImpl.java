@@ -63,59 +63,65 @@ public class LeadRepositoryImpl implements LeadRepository {
                 .toList();
     }
 
-        @Override
-        @Transactional(readOnly = true)
-        public LeadPageResult<Lead> findAll(int page, int size, String sortBy, String sortDir) {
+    @Override
+    @Transactional(readOnly = true)
+    public LeadPageResult<Lead> findAll(Long currentUserId, Long userOrganizationId, String scope, int page, int size, String sortBy, String sortDir) {
         Pageable pageable = buildPageable(page, size, sortBy, sortDir);
 
+        Specification<org.example.crm_project.modules.leads_managerment.infrastructure.persistence.entity.LeadEntity> specification =
+                buildSearchSpecification(null, null, null, null, null, null, currentUserId, userOrganizationId, scope);
+
         Page<org.example.crm_project.modules.leads_managerment.infrastructure.persistence.entity.LeadEntity> resultPage =
-            jpaLeadRepository.findAll((root, query, cb) -> cb.isNull(root.get("deletedAt")), pageable);
+                jpaLeadRepository.findAll(specification, pageable);
 
         List<Lead> content = resultPage.getContent().stream()
-            .map(entity -> LeadJpaMapper.toDomain(entity, loadProductInterestIds(entity.getId())))
-            .toList();
+                .map(entity -> LeadJpaMapper.toDomain(entity, loadProductInterestIds(entity.getId())))
+                .toList();
 
         return toLeadPageResult(resultPage, content);
-        }
+    }
 
     @Override
     @Transactional(readOnly = true)
     public List<Lead> search(Integer provinceId, Long organizationId, String phone, String email, Long statusId, Long sourceId) {
         Specification<org.example.crm_project.modules.leads_managerment.infrastructure.persistence.entity.LeadEntity> specification =
-            buildSearchSpecification(provinceId, organizationId, phone, email, statusId, sourceId);
+                buildSearchSpecification(provinceId, organizationId, phone, email, statusId, sourceId, null, null, null);
 
         return jpaLeadRepository.findAll(specification).stream()
                 .map(entity -> LeadJpaMapper.toDomain(entity, loadProductInterestIds(entity.getId())))
                 .toList();
     }
 
-        @Override
-        @Transactional(readOnly = true)
-        public LeadPageResult<Lead> search(
+    @Override
+    @Transactional(readOnly = true)
+    public LeadPageResult<Lead> search(
             Integer provinceId,
             Long organizationId,
             String phone,
             String email,
             Long statusId,
             Long sourceId,
+            Long currentUserId,
+            Long userOrganizationId,
+            String scope,
             int page,
             int size,
             String sortBy,
             String sortDir
-        ) {
+    ) {
         Specification<org.example.crm_project.modules.leads_managerment.infrastructure.persistence.entity.LeadEntity> specification =
-            buildSearchSpecification(provinceId, organizationId, phone, email, statusId, sourceId);
+                buildSearchSpecification(provinceId, organizationId, phone, email, statusId, sourceId, currentUserId, userOrganizationId, scope);
         Pageable pageable = buildPageable(page, size, sortBy, sortDir);
 
         Page<org.example.crm_project.modules.leads_managerment.infrastructure.persistence.entity.LeadEntity> resultPage =
-            jpaLeadRepository.findAll(specification, pageable);
+                jpaLeadRepository.findAll(specification, pageable);
 
         List<Lead> content = resultPage.getContent().stream()
-            .map(entity -> LeadJpaMapper.toDomain(entity, loadProductInterestIds(entity.getId())))
-            .toList();
+                .map(entity -> LeadJpaMapper.toDomain(entity, loadProductInterestIds(entity.getId())))
+                .toList();
 
         return toLeadPageResult(resultPage, content);
-        }
+    }
 
     @Override
     @Transactional
@@ -206,7 +212,10 @@ public class LeadRepositoryImpl implements LeadRepository {
             String phone,
             String email,
             Long statusId,
-            Long sourceId
+            Long sourceId,
+            Long currentUserId,
+            Long userOrganizationId,
+            String scope
     ) {
         Specification<org.example.crm_project.modules.leads_managerment.infrastructure.persistence.entity.LeadEntity> specification =
                 (root, query, cb) -> cb.isNull(root.get("deletedAt"));
@@ -235,6 +244,22 @@ public class LeadRepositoryImpl implements LeadRepository {
         if (StringUtils.hasText(email)) {
             String normalizedEmail = "%" + email.trim().toLowerCase() + "%";
             specification = specification.and((root, query, cb) -> cb.like(cb.lower(root.get("email")), normalizedEmail));
+        }
+
+        // Apply row-level security scope filters
+        if (StringUtils.hasText(scope)) {
+            if ("OWN".equalsIgnoreCase(scope) && currentUserId != null) {
+                specification = specification.and((root, query, cb) ->
+                        cb.or(
+                                cb.equal(root.get("assignedTo"), currentUserId),
+                                cb.equal(root.get("createdBy"), currentUserId)
+                        )
+                );
+            } else if (("BRANCH".equalsIgnoreCase(scope) || "DEPARTMENT".equalsIgnoreCase(scope) || "TEAM".equalsIgnoreCase(scope)) && userOrganizationId != null) {
+                specification = specification.and((root, query, cb) ->
+                        cb.equal(root.get("organizationId"), userOrganizationId)
+                );
+            }
         }
 
         return specification;
