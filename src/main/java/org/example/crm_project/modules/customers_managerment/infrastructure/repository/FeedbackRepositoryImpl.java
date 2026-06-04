@@ -32,24 +32,24 @@ public class FeedbackRepositoryImpl implements FeedbackRepository {
 
     @Override
     public Optional<Feedback> findById(Long id) {
-        return jpaRepository.findById(id).map(this::entityToDomain);
+        return jpaRepository.findByIdAndDeletedAtIsNull(id).map(this::entityToDomain);
     }
 
     @Override
     public Page<Feedback> findByCustomerId(Long customerId, Pageable pageable) {
-        Page<FeedbackEntity> page = jpaRepository.findByCustomerId(customerId, pageable);
+        Page<FeedbackEntity> page = jpaRepository.findByCustomerIdAndDeletedAtIsNull(customerId, pageable);
         return page.map(this::entityToDomain);
     }
 
     @Override
     public Page<Feedback> findByStatus(String status, Pageable pageable) {
-        Page<FeedbackEntity> page = jpaRepository.findByStatus(status, pageable);
+        Page<FeedbackEntity> page = jpaRepository.findByStatusAndDeletedAtIsNull(status, pageable);
         return page.map(this::entityToDomain);
     }
 
     @Override
     public Page<Feedback> findByPriority(String priority, Pageable pageable) {
-        Page<FeedbackEntity> page = jpaRepository.findByPriority(priority, pageable);
+        Page<FeedbackEntity> page = jpaRepository.findByPriorityAndDeletedAtIsNull(priority, pageable);
         return page.map(this::entityToDomain);
     }
 
@@ -64,12 +64,12 @@ public class FeedbackRepositoryImpl implements FeedbackRepository {
 
     @Override
     public boolean existsById(Long id) {
-        return jpaRepository.existsById(id);
+        return jpaRepository.existsByIdAndDeletedAtIsNull(id);
     }
 
     @Override
     public long count() {
-        return jpaRepository.count();
+        return jpaRepository.countByDeletedAtIsNull();
     }
 
     private Feedback entityToDomain(FeedbackEntity entity) {

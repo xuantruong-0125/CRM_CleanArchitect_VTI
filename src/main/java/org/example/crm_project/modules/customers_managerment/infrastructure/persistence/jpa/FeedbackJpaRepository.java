@@ -6,12 +6,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 /**
  * JPA Repository: FeedbackJpaRepository
  */
 @Repository
 public interface FeedbackJpaRepository extends JpaRepository<FeedbackEntity, Long> {
-    Page<FeedbackEntity> findByCustomerId(Long customerId, Pageable pageable);
-    Page<FeedbackEntity> findByStatus(String status, Pageable pageable);
-    Page<FeedbackEntity> findByPriority(String priority, Pageable pageable);
+    Optional<FeedbackEntity> findByIdAndDeletedAtIsNull(Long id);
+    
+    boolean existsByIdAndDeletedAtIsNull(Long id);
+    
+    Page<FeedbackEntity> findByCustomerIdAndDeletedAtIsNull(Long customerId, Pageable pageable);
+    
+    Page<FeedbackEntity> findByStatusAndDeletedAtIsNull(String status, Pageable pageable);
+    
+    Page<FeedbackEntity> findByPriorityAndDeletedAtIsNull(String priority, Pageable pageable);
+    
+    long countByDeletedAtIsNull();
 }

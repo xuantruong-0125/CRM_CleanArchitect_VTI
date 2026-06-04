@@ -42,7 +42,7 @@ public interface CustomerRepository {
     /**
      * Lấy danh sách khách hàng phân trang
      */
-    Page<Customer> findAll(Pageable pageable);
+    Page<Customer> findAll(Long currentUserId, Long userOrganizationId, String scope, Pageable pageable);
 
 
 
@@ -89,5 +89,5 @@ public interface CustomerRepository {
     /**
      * Tìm kiếm khách hàng theo nhiều điều kiện
      */
-    Page<Customer> search(String keyword, String type, Long statusId, Long tierId, String email, String phone, Long assignedTo, Pageable pageable);
+    Page<Customer> search(String keyword, String type, Long statusId, Long tierId, String email, String phone, Long assignedTo, Long currentUserId, Long userOrganizationId, String scope, Pageable pageable);
 }

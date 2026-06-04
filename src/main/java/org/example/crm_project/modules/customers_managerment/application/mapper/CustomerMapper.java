@@ -76,6 +76,7 @@ public class CustomerMapper {
         dto.setStatusName(customer.getStatus() != null ? customer.getStatus().getName() : null);
         dto.setTierName(customer.getTier() != null ? customer.getTier().getName() : null);
         dto.setAssignedTo(customer.getAssignedTo());
+        dto.setEstablishedDate(customer.getEstablishedDate());
         dto.setCreatedAt(customer.getCreatedAt());
         dto.setUpdatedAt(customer.getUpdatedAt());
 

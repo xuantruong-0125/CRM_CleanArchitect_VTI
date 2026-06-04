@@ -48,7 +48,7 @@ public class FeedbackEntity {
     @Transient
     private Long updatedBy;
     
-    @Transient
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
     
     @PrePersist
