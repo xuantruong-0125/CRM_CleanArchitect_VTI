@@ -2,6 +2,7 @@ package org.example.crm_project.modules.system_managerment.application.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.crm_project.modules.auth.application.port.PasswordEncoderPort;
+import org.example.crm_project.modules.auth.domain.entity.AuthUser;
 import org.example.crm_project.modules.system_managerment.application.dto.request.*;
 import org.example.crm_project.modules.system_managerment.application.dto.response.PaginationResponse;
 import org.example.crm_project.modules.system_managerment.application.dto.response.UserResponse;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -181,5 +183,26 @@ public class UserService {
                 userPage,
                 UserMapper::toResponse
         );
+    }
+
+    public List<UserResponse> getUsersByMyOrganization() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof AuthUser)) {
+            throw new RuntimeException("Chưa đăng nhập!");
+        }
+        AuthUser currentUser = (AuthUser) auth.getPrincipal();
+
+        UserResponse currentUserInfo = this.getById(currentUser.getId());
+        Long myOrgId = currentUserInfo.getOrganizationId();
+
+        if (myOrgId == null) {
+            return java.util.Collections.emptyList();
+        }
+
+        List<User> domainUsers = repository.findByOrganizationId(myOrgId);
+
+        return domainUsers.stream()
+                .map(UserMapper::toResponse)
+                .toList();
     }
 }

@@ -36,4 +36,7 @@ public interface JpaUserRepository extends JpaRepository<UserEntity, Long> {
     );
 
     boolean existsByEmail(String email);
+
+    @Query("SELECT u FROM UserEntity u WHERE u.deletedAt IS NULL AND u.organizationId = :organizationId")
+    List<UserEntity> findByOrganizationId(@Param("organizationId") Long organizationId);
 }

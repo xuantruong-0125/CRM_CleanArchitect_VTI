@@ -72,4 +72,11 @@ public class UserRepositoryImpl implements UserRepository {
     public boolean existsByEmail(String email) {
         return jpaRepository.existsByEmail(email);
     }
+
+    @Override
+    public List<User> findByOrganizationId(Long organizationId) {
+        return jpaRepository.findByOrganizationId(organizationId).stream()
+                .map(UserJpaMapper::toDomain) 
+                .toList();
+    }
 }

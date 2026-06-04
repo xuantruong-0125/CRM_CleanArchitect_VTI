@@ -1,11 +1,15 @@
 package org.example.crm_project.modules.system_managerment.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.example.crm_project.modules.system_managerment.application.dto.response.PaginationResponse;
 import org.example.crm_project.modules.system_managerment.application.service.UserService;
 import org.example.crm_project.modules.system_managerment.presentation.dto.request.*;
 import org.example.crm_project.modules.system_managerment.presentation.dto.response.UserResponseDto;
 import org.example.crm_project.modules.system_managerment.presentation.mapper.UserPresentationMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -112,5 +116,16 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         service.delete(id);
+    }
+
+    @GetMapping("/lookup")
+    public ResponseEntity<List<UserResponseDto>> getLookupUsers() {
+        
+        List<UserResponseDto> responses = service.getUsersByMyOrganization()
+                .stream()
+                .map(UserPresentationMapper::toDto)
+                .toList();
+                
+        return ResponseEntity.ok(responses);
     }
 }

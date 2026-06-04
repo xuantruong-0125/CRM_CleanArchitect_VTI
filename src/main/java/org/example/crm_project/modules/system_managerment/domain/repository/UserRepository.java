@@ -28,4 +28,7 @@ public interface UserRepository {
     );
 
     boolean existsByEmail(String email);
+
+    List<User> findByOrganizationId(Long organizationId);
+    
 }

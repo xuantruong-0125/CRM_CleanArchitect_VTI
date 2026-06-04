@@ -20,7 +20,7 @@ public interface JpaTaskRepository extends JpaRepository<TaskJpaEntity, Long> {
                         "(:status IS NULL OR t.status = :status) AND " +
                         "(:priority IS NULL OR t.priority = :priority) AND " +
                         " (:fromDateTime IS NULL OR t.startDate >= :fromDateTime) AND " +
-                        " (:toDateTime IS NULL OR t.startDate <= :toDateTime) AND " +
+                        " (:toDateTime IS NULL OR t.dueDate <= :toDateTime) AND " +
                         " ( :scope = 'ALL' OR " +
                         "   (:scope = 'OWN' AND (t.assignedTo = :currentUserId OR t.assignedBy = :currentUserId)) OR " +
                         "   (:scope = 'BRANCH' AND t.organizationId = :organizationId)" +
