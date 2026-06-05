@@ -37,7 +37,7 @@ public class LeadServiceImpl implements LeadService {
 
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_SIZE = 20;
-    private static final int MAX_SIZE = 100;
+    private static final int MAX_SIZE = 200;
     private static final String DEFAULT_SORT_BY = "createdAt";
     private static final String DEFAULT_SORT_DIR = "desc";
     private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(
